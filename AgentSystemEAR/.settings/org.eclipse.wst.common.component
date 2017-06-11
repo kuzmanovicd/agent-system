@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="AgentSystemEAR">
+        <wb-resource deploy-path="/" source-path="/EarContent" tag="defaultRootSource"/>
+        <dependent-module archiveName="AgentSystemEJB.jar" deploy-path="/" handle="module:/resource/AgentSystemEJB/AgentSystemEJB">
+            <dependent-object/>
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="AgentSystemEJBClient.jar" deploy-path="/" handle="module:/resource/AgentSystemEJBClient/AgentSystemEJBClient">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="AgentSystemWAR.war" deploy-path="/" handle="module:/resource/AgentSystemWAR/AgentSystemWAR">
+            <dependent-object/>
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+    </wb-module>
+</project-modules>
