@@ -12,5 +12,14 @@
             <dependent-object/>
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="AgentSystemUtils.jar" deploy-path="/lib" handle="module:/resource/AgentSystemUtils/AgentSystemUtils">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="json-20160810.jar" deploy-path="/lib" handle="module:/classpath/lib/C:/Users/deyan/workspace-jee/at/AgentSystemWAR/WebContent/WEB-INF/lib/json-20160810.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="gson-2.8.0.jar" deploy-path="/lib" handle="module:/classpath/lib/C:/Users/deyan/workspace-jee/at/AgentSystemWAR/WebContent/WEB-INF/lib/gson-2.8.0.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
     </wb-module>
 </project-modules>
