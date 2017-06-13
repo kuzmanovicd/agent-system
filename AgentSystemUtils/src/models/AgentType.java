@@ -34,6 +34,21 @@ public class AgentType implements Serializable {
 	public void setModule(String module) {
 		this.module = module;
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(o instanceof AgentType) {
+			return equals2((AgentType)o);
+		}
+		return false;
+	}
+	
+	public boolean equals2(AgentType type) {
+		if(this.name.equals(type.getName()) && this.module.equals(type.getModule())) {
+			return true;
+		}
+		return false;
+	}
 
 	
 	

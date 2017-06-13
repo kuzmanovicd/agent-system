@@ -1,5 +1,7 @@
 package utils;
 
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -9,6 +11,72 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 import logger.Log;
 
+@Stateless
+@LocalBean
+public class HTTP {
+	
+	private final static Boolean print = true;
+	
+	public Response OK_200(Object obj) {
+		return Response.status(200).entity(obj).build();
+	}
+	
+	public Response CREATED_201(Object obj) {
+		return Response.status(201).entity(obj).build();
+	}
+	
+	public Response ACCEPTED_202(Object obj) {
+		return Response.status(202).entity(obj).build();
+	}
+
+	public Response BAD_400(Object obj) {
+		return Response.status(400).entity(obj).build();
+	}
+	
+	public Response UNAUTHORIZED_401(Object obj) {
+		return Response.status(401).entity(obj).build();
+	}
+	
+	public Response FORBIDDEN_403(Object obj) {
+		return Response.status(403).entity(obj).build();
+	}
+	
+	public Response NOT_FOUND_404(Object obj) {
+		return Response.status(404).entity(obj).build();
+	}
+	
+	public Response NOT_ALLOWED_405(Object obj) {
+		return Response.status(405).entity(obj).build();
+	}
+	
+	public Response post(ResteasyClient client, String url, Object obj) {
+		Entity data = Entity.entity(obj, MediaType.APPLICATION_JSON);
+		Response response = target(client, url).request(MediaType.APPLICATION_JSON).post(data);
+		if(print)
+			Log.out("$$$$$ POST - " + url + " - " + response.getStatus());
+		return response;
+	}
+	
+	public Response get(ResteasyClient client, String url) {
+		Response response = target(client, url).request().get();
+		if(print)
+			Log.out("$$$$$ GET - " + url + " - " + response.getStatus());
+		return response;
+	}
+	
+	private ResteasyWebTarget target(ResteasyClient client, String url) {
+		ResteasyWebTarget target = client.target(url);
+		return target;
+	}
+	
+	public String gen(String address, String appName, String apiRoot) {
+		return "http://" + address + "/" + appName + "/" + apiRoot + "/";
+	}
+	
+	
+}
+
+/*
 public class HTTP {
 	
 	private final static Boolean print = true;
@@ -68,7 +136,6 @@ public class HTTP {
 	public static String gen(String address, String appName, String apiRoot) {
 		return "http://" + address + "/" + appName + "/" + apiRoot + "/";
 	}
-	
-	
 }
+*/
 
