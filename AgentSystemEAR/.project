@@ -6,7 +6,6 @@
 		<project>AgentSystemEJB</project>
 		<project>AgentSystemEJBClient</project>
 		<project>AgentSystemWAR</project>
-		<project>AgentSystemUtils</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -19,15 +18,9 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
-		<buildCommand>
-			<name>org.zeroturnaround.eclipse.rebelXmlBuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.wst.common.project.facet.core.nature</nature>
 		<nature>org.eclipse.wst.common.modulecore.ModuleCoreNature</nature>
-		<nature>org.zeroturnaround.eclipse.jrebelNature</nature>
 	</natures>
 </projectDescription>

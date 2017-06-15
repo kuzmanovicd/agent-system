@@ -37,20 +37,18 @@ public class AgentApi {
 	
     @GET
     @Path("/classes")
-    public ArrayList<AgentType> getClasses() {
+    public ArrayList<AgentType> getMyClasses() {
     	Log.out(this, "GET /agents/classes");
 		return agentManager.getMyAgentTypes();
     }
     
     @POST
     @Path("/classes")
-    public Response updateClasses(ArrayList<AgentType> types) {
+    public Response updateAllClasses(HashMap<String, ArrayList<AgentType>> types) {
     	Log.out(this, "POST /agents/classes");
 		agentManager.setAgentTypes(types);
     	return HTTP.OK_200("ok");
     }
-    
-    
     
     @GET
     @Path("/running")

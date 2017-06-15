@@ -4,7 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.AccessTimeout;
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.LocalBean;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.Stateless;
@@ -21,10 +26,14 @@ import models.AgentType;
 @Singleton
 @Startup
 @LocalBean
+@ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
+@AccessTimeout(value = 5000)
+@Lock(LockType.READ)
 public class AgentManager implements AgentManagerLocal {
 
 	// String is alias of the Center where agent type is available
-	private ArrayList<AgentType> agentTypes;
+	//private HashMap<String, ArrayList<AgentType>> agentTypes;
+	private HashMap<String, ArrayList<AgentType>> agentTypes;
 	
 	private ArrayList<AgentType> myAgentTypes;
 	
@@ -41,22 +50,20 @@ public class AgentManager implements AgentManagerLocal {
     @PostConstruct
     public void init() {
     	Log.out(this, "@PostConstruct");
-    	agentTypes = new ArrayList<AgentType>();
+    	agentTypes = new HashMap<>();
     	myAgentTypes = new ArrayList<AgentType>();
     	runningAgents = new ArrayList<AID>();
     	myRunningAgents = new HashMap<String, BaseAgent>();
     }
 
-	public ArrayList<AgentType> getAgentTypes() {
+    @Override
+	public HashMap<String, ArrayList<AgentType>> getAgentTypes() {
 		return agentTypes;
 	}
 
 	@Override
-	public boolean addAgentType(AgentType type) {
-		if(!agentTypes.contains(type)) {
-			agentTypes.add(type);
-			return true;
-		}
+	public boolean addAgentsType(String alias, ArrayList<AgentType> types) {
+		agentTypes.put(alias, types);
 		return false;
 	}
 	
@@ -68,7 +75,18 @@ public class AgentManager implements AgentManagerLocal {
 		}
 		return false;
 	}
-
+	
+	@Override
+	public boolean startAgent(AID id) {
+		return true;
+	}
+	
+	@Override
+	public boolean stopAgent(AID id) {
+		return true;
+	}
+	
+	//getters and setters
 	public ArrayList<AID> getRunningAgents() {
 		return runningAgents;
 	}
@@ -101,9 +119,12 @@ public class AgentManager implements AgentManagerLocal {
 		this.myAgentTypes = myAgentTypes;
 	}
 
-	public void setAgentTypes(ArrayList<AgentType> agentTypes) {
+	public void setAgentTypes(HashMap<String, ArrayList<AgentType>> agentTypes) {
 		this.agentTypes = agentTypes;
 	}
+
+	
+	
     
 	
     

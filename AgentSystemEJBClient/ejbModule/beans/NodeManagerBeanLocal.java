@@ -9,7 +9,7 @@ import models.AgentCenter;
 @Local
 public interface NodeManagerBeanLocal {
 
-	ArrayList<AgentCenter> nodeRegister(AgentCenter node);
+	boolean nodeRegister(AgentCenter node);
 
 	void updateHost(ArrayList<AgentCenter> nodes);
 

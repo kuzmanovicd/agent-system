@@ -37,6 +37,8 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 	@EJB AppManagerBean appManager;
 	@EJB AgentManager agentManager;
 	@EJB HTTP HTTP;
+	@EJB(beanName = AppConst.COMMUNICATOR_NAME)
+	CommunicatorLocal communicator;
 	
 	private ArrayList<AgentType> newAgentTypes;
 	private AgentCenter newNode;
@@ -48,46 +50,23 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
     
     @Lock(LockType.WRITE)
     public void prepareHandshake(AgentCenter node) {
-    	this.newAgentTypes = new ArrayList<AgentType>();
+    	//this.newAgentTypes = new ArrayList<AgentType>();
     	this.newNode = node;
     	this.handshakeInProgress = true;
     }
     
     @Lock(LockType.WRITE)
     public void rollbackHandshake() {
-    	//TODO
-    	
+    	communicator.removeNode(newNode);
     	clearHandshake();
     }
     
     @Lock(LockType.WRITE)
     public void commitHandshake() {
     	appManager.getAllCenters().add(newNode);
-    	
-    	for(AgentType type : newAgentTypes) {
-    		agentManager.addAgentType(type);
-    	}
-    	
-    	notifyNodes();
+    	agentManager.addAgentsType(newNode.getAlias(), newAgentTypes);   	
+    	communicator.notifyNodes();
     	clearHandshake();
-    }
-    
-    public void removeNode(AgentCenter node) {
-    	//agentManager.
-    }
-    
-    public void notifyNodes() {
-    	for(AgentCenter node : appManager.getAllCenters()) {
-    		if(node.equals(appManager.getThisCenter())) {
-    			continue;
-    		}
-    		
-    		String url = HTTP.gen(node.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "/cluster/node/update";
-    		HTTP.post(appManager.getClient(), url, appManager.getAllCenters()).close();
-    		
-    		url = HTTP.gen(node.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "/agents/classes";
-    		HTTP.post(appManager.getClient(), url, agentManager.getAgentTypes()).close();
-    	}
     }
     
     @Lock(LockType.WRITE)
@@ -99,46 +78,25 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
     
     @Override
     @Lock(LockType.WRITE)
-    public ArrayList<AgentCenter> nodeRegister(AgentCenter node) {
+    public boolean nodeRegister(AgentCenter node) {
     	if(appManager.aliasExists(node.getAlias())) {
 			Log.out(this, "Alias exist:" + node.getAlias());
-			return null;
+			return false;
 		}
     	
     	if(appManager.isMaster()) {
     		prepareHandshake(node);
-    		String url = HTTP.gen(node.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "agents/classes";
-    		Response response = HTTP.get(appManager.getClient(), url);
+    		newAgentTypes = communicator.retrieveAgentCenterClasses(node);
     		
-    		// Step 2 - Handshake - retrieve the list of agent types from the new node
-    		if(response.getStatus() >= 400) {
-    			newAgentTypes = response.readEntity(new GenericType<ArrayList<AgentType>>() {});
-        		response.close();
-        		// Finalize step
-        		commitHandshake();
+    		if(newAgentTypes != null) {
+    			commitHandshake();
+    			return true;
     		} else {
-    			// Rollback
     			rollbackHandshake();
-    		}
-    		
-    	} else {
-    		appManager.getAllCenters().add(node);
-    	}
-		
-    	/*
-		appManager.getAllCenters().add(node);
-	
-		for(AgentCenter n : appManager.getAllCenters()) {
-			if(n.equals(appManager.getMasterCenter()) || n.equals(node)) {
-				continue;
-			}
-			String uri = HTTP.gen(n.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "cluster/host-update";
-
-			Response response = HTTP.post(appManager.getClient(), uri, appManager.getAllCenters());
-			response.close();
-		}
-		*/
-		return appManager.getAllCenters();
+    			return false;
+    		}   		
+    	}   	
+    	return false;	
     }
     
     @Override

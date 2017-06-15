@@ -1,5 +1,6 @@
 package utils;
 
+import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ws.rs.client.Entity;
@@ -9,11 +10,14 @@ import javax.ws.rs.core.Response;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
+import beans.AppManagerBean;
 import logger.Log;
 
 @Stateless
 @LocalBean
 public class HTTP {
+	
+	@EJB AppManagerBean app;
 	
 	private final static Boolean print = true;
 	
@@ -53,14 +57,14 @@ public class HTTP {
 		Entity data = Entity.entity(obj, MediaType.APPLICATION_JSON);
 		Response response = target(client, url).request(MediaType.APPLICATION_JSON).post(data);
 		if(print)
-			Log.out("$$$$$ POST - " + url + " - " + response.getStatus());
+			Log.out("$$$$$ " + app.getThisCenter().getAlias() + " POST - " + url + " - " + response.getStatus());
 		return response;
 	}
 	
 	public Response get(ResteasyClient client, String url) {
 		Response response = target(client, url).request().get();
 		if(print)
-			Log.out("$$$$$ GET - " + url + " - " + response.getStatus());
+			Log.out("$$$$$ " + app.getThisCenter().getAlias() + " GET - " + url + " - " + response.getStatus());
 		return response;
 	}
 	

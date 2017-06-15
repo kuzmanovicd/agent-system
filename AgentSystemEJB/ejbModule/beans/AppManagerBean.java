@@ -7,13 +7,19 @@ import java.util.Scanner;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.ejb.AccessTimeout;
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
+import javax.ejb.Lock;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.Stateless;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+
+import javax.ejb.LockType;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
@@ -30,14 +36,20 @@ import utils.HTTP;
 @Singleton
 @Startup
 @LocalBean
+@ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
+@AccessTimeout(value = 5000)
+@Lock(LockType.READ)
 public class AppManagerBean implements AppManagerBeanLocal {
 
 	@EJB HTTP HTTP;
+	@EJB(beanName = AppConst.COMMUNICATOR_NAME)
+	CommunicatorLocal communicator;
 	
 	private AgentCenter thisCenter;
     private AgentCenter masterCenter;
     private ArrayList<AgentCenter> allCenters;
     private ResteasyClient client;
+    //private boolean isInitialized;
     
     public AppManagerBean() {
         
@@ -78,19 +90,7 @@ public class AppManagerBean implements AppManagerBeanLocal {
 			allCenters.add(this.thisCenter);
 		} else {
 			Log.out(this, "Agent Centar je slave... Pokusaj konektovanja na master centar...");
-			
-			String uri = HTTP.gen(this.masterCenter.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "cluster/register";
-			Response response = HTTP.post(getClient(), uri, this.thisCenter);
-			
-			ArrayList<AgentCenter> hosts = response.readEntity(new GenericType<ArrayList<AgentCenter>>() {});
-			response.close();
-			
-			allCenters = hosts;
-			Log.out(this, "Ukupan broj agentskih centara: " + hosts.size());
-			for(AgentCenter h : hosts) {
-				Log.out(this, h.toString());
-			}
-			
+			communicator.registerNode(this.thisCenter, this.masterCenter, client);
 		}
 	}
 		

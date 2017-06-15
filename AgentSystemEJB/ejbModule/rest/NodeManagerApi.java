@@ -41,12 +41,11 @@ public class NodeManagerApi {
 	public Response nodeRegister(AgentCenter node) {
 		Log.out(this, "POST /node");
 		
-		ArrayList<AgentCenter> nodes = nodeManager.nodeRegister(node);
-		if(nodes == null) {
+		if(!nodeManager.nodeRegister(node)) {
 			return HTTP.BAD_400("There was error in registering new node.");
 		}
 		
-		return HTTP.OK_200(nodes);
+		return HTTP.CREATED_201("ok");
 	}
 	
 	@POST
@@ -57,23 +56,14 @@ public class NodeManagerApi {
 		return HTTP.OK_200(nodes);
 	}
 	
+	/*
 	@GET
 	@Path("/agents/classes")
 	public ArrayList<AgentType> agentTypes() {
 		Log.out(this, "GET /agents/classes");
-		return agentManager.getAgentTypes();
+		return agentManager.getMyAgentTypes();
 	}
 	
-	@POST
-	@Path("/agents/classes")
-	public Response newAgentTypes(AgentType type) {
-		Log.out(this, "POST /agents/classes");
-		if(agentManager.addAgentType(type)) {
-			return HTTP.CREATED_201(type);
-		}
-		
-		return HTTP.BAD_400("Agent Type already exists");
-	}
 	
 	@POST
 	@Path("/agents/running")
@@ -82,11 +72,20 @@ public class NodeManagerApi {
 		return agentManager.getRunningAgents();
 	}
 	
+	*/
+	
 	@GET
     @Path("/node")
     public Response status() {
     	//Log.out(this, "status called");
     	return HTTP.OK_200("online");
+    }
+	
+	@GET
+    @Path("/nodes")
+    public ArrayList<AgentCenter> allNodes() {
+    	//Log.out(this, "status called");
+    	return appManager.getAllCenters();
     }
 	
 	@DELETE
