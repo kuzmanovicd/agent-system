@@ -36,12 +36,8 @@ import utils.HTTP;
 @Singleton
 @Startup
 @LocalBean
-@ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
-@AccessTimeout(value = 5000)
-@Lock(LockType.READ)
 public class AppManagerBean implements AppManagerBeanLocal {
 
-	@EJB HTTP HTTP;
 	@EJB(beanName = AppConst.COMMUNICATOR_NAME)
 	CommunicatorLocal communicator;
 	
@@ -90,7 +86,8 @@ public class AppManagerBean implements AppManagerBeanLocal {
 			allCenters.add(this.thisCenter);
 		} else {
 			Log.out(this, "Agent Centar je slave... Pokusaj konektovanja na master centar...");
-			communicator.registerNode(this.thisCenter, this.masterCenter, client);
+			//Log.out(this, thisCenter.toString() + " - master - " + masterCenter.toString());
+			communicator.registerNode(this.thisCenter, this.masterCenter);
 		}
 	}
 		
@@ -154,7 +151,6 @@ public class AppManagerBean implements AppManagerBeanLocal {
 				return true;
 			}
 		}
-		
 		return false;
 	}
 	
@@ -170,6 +166,4 @@ public class AppManagerBean implements AppManagerBeanLocal {
 		}
 		return null;
 	}
-	
-
 }

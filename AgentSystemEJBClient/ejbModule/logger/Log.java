@@ -11,3 +11,4 @@ public class Log {
 		out("###### " + obj.getClass().getName() + " - " + msg);
 	}
 }
+

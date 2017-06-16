@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -25,23 +26,23 @@ import models.AgentCenter;
 import models.AgentType;
 import utils.HTTP;
 
-@RequestScoped
+@Stateless
+//@RequestScoped
 @Path("/cluster")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class NodeManagerApi {
 	
 	@EJB NodeManagerBean nodeManager;
-	@EJB AgentManager agentManager;
 	@EJB AppManagerBean appManager;
-	@EJB HTTP HTTP;
 	
 	@POST
 	@Path("/node")
 	public Response nodeRegister(AgentCenter node) {
 		Log.out(this, "POST /node");
 		
-		if(!nodeManager.nodeRegister(node)) {
+		boolean success = nodeManager.nodeRegister(node);
+		if(!success) {
 			return HTTP.BAD_400("There was error in registering new node.");
 		}
 		

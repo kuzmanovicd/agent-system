@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -24,22 +25,21 @@ import models.AID;
 import models.AgentType;
 import utils.HTTP;
 
-@RequestScoped
+@Stateless
+//@RequestScoped
 @Path("/agents")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class AgentApi {
 
-	@EJB NodeManagerBean nodeManager;
 	@EJB AgentManager agentManager;
-	@EJB AppManagerBean appManager;
-	@EJB HTTP HTTP;
 	
     @GET
     @Path("/classes")
     public ArrayList<AgentType> getMyClasses() {
     	Log.out(this, "GET /agents/classes");
-		return agentManager.getMyAgentTypes();
+		//return agentManager.getMyAgentTypes();
+    	return new ArrayList<AgentType>();
     }
     
     @POST

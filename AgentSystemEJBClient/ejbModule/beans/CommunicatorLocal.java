@@ -18,6 +18,6 @@ public interface CommunicatorLocal {
 
 	ArrayList<AgentType> retrieveAgentCenterClasses(AgentCenter node);
 
-	void registerNode(AgentCenter thisCenter, AgentCenter masterCenter, ResteasyClient client);
+	void registerNode(AgentCenter thisCenter, AgentCenter masterCenter);
 
 }

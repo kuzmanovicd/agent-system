@@ -9,6 +9,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 import logger.Log;
 import models.AgentCenter;
@@ -25,10 +26,10 @@ public class RestCommunicator implements CommunicatorLocal {
 
 	@EJB AgentManager agentManager;
 	@EJB AppManagerBean appManager;
-	@EJB HTTP HTTP;
+	private ResteasyClient restClient;
 	
     public RestCommunicator() {
-        // TODO Auto-generated constructor stub
+    	restClient = new ResteasyClientBuilder().connectionPoolSize(50).build();
     }
     
     @Override
@@ -55,19 +56,21 @@ public class RestCommunicator implements CommunicatorLocal {
     		}
     		
     		String url = HTTP.gen(node.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "/cluster/node/update";
-    		HTTP.post(appManager.getClient(), url, appManager.getAllCenters()).close();
+    		HTTP.post(restClient, url, appManager.getAllCenters()).close();
     		
     		url = HTTP.gen(node.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "/agents/classes";
-    		HTTP.post(appManager.getClient(), url, agentManager.getAgentTypes()).close();
+    		HTTP.post(restClient, url, agentManager.getAgentTypes()).close();
     	}
     }
     
     @Override
     public ArrayList<AgentType> retrieveAgentCenterClasses(AgentCenter node) {
     	Log.out(this, "REST retrieveAgentCenterClasses");
+    	Log.out(this, node.toString());
+    	
     	String url = HTTP.gen(node.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "agents/classes";
-		Response response = HTTP.get(appManager.getClient(), url);
-		
+		Response response = HTTP.get(restClient, url);
+		Log.out(this, "ISPISALO!!!");
 		// Step 2 - Handshake - retrieve the list of agent types from the new node
 		if(response.getStatus() < 400) {
 			ArrayList<AgentType> types = response.readEntity(new GenericType<ArrayList<AgentType>>() {});
@@ -79,14 +82,21 @@ public class RestCommunicator implements CommunicatorLocal {
     }
     
     @Override
-    public void registerNode(AgentCenter thisCenter, AgentCenter masterCenter, ResteasyClient client) {
-    	Log.out(this, "registerNode");
-    	String uri = HTTP.gen(masterCenter.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "cluster/node";
-		Response response = HTTP.post(client, uri, thisCenter);
-		if(response.getStatus() >= 400) {
-			Log.out(this, "registerNode - unsuccessful");
-		}
-		response.close();
+    public void registerNode(AgentCenter thisCenter, AgentCenter masterCenter) {
+    	try {
+    		Log.out(this, "registerNode");
+        	String uri = HTTP.gen(masterCenter.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "cluster/node";
+        	Log.out(this, uri);
+    		Response response = HTTP.post(restClient, uri, thisCenter);
+    		Log.out(this, "after HTTP.post");
+    		if(response.getStatus() >= 400) {
+    			Log.out(this, "registerNode - unsuccessful");
+    		}
+    		response.close();
+    	} catch (Exception e) {
+    		Log.out(this, "registerNode EXCEPTION");
+    	}
+    	
     }
     
     public void unregisterNode() {

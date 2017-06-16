@@ -7,6 +7,7 @@ import javax.annotation.PostConstruct;
 import javax.ejb.AccessTimeout;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
+import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
@@ -26,9 +27,9 @@ import models.AgentType;
 @Singleton
 @Startup
 @LocalBean
-@ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
-@AccessTimeout(value = 5000)
-@Lock(LockType.READ)
+//@ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
+//@AccessTimeout(value = 5000)
+//@Lock(LockType.READ)
 public class AgentManager implements AgentManagerLocal {
 
 	// String is alias of the Center where agent type is available
@@ -54,6 +55,12 @@ public class AgentManager implements AgentManagerLocal {
     	myAgentTypes = new ArrayList<AgentType>();
     	runningAgents = new ArrayList<AID>();
     	myRunningAgents = new HashMap<String, BaseAgent>();
+    	
+    	AgentType at1 = new AgentType("at1", "at1");
+    	AgentType at2 = new AgentType("at2", "at2");
+    	
+    	myAgentTypes.add(at1);
+    	myAgentTypes.add(at2);
     }
 
     @Override

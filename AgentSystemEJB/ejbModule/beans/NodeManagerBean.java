@@ -13,6 +13,7 @@ import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.ejb.Stateful;
 import javax.ejb.Stateless;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
@@ -27,16 +28,15 @@ import utils.HTTP;
 /**
  * Session Bean implementation class NodeManagerBean
  */
-@Singleton
+@Stateful
 @Startup
 @LocalBean
-@ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
-@AccessTimeout(value = 5000)
+//@ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
+//@AccessTimeout(value = 5000)
 public class NodeManagerBean implements NodeManagerBeanLocal {
 
 	@EJB AppManagerBean appManager;
 	@EJB AgentManager agentManager;
-	@EJB HTTP HTTP;
 	@EJB(beanName = AppConst.COMMUNICATOR_NAME)
 	CommunicatorLocal communicator;
 	
@@ -48,21 +48,24 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
         // TODO Auto-generated constructor stub
     }
     
-    @Lock(LockType.WRITE)
+    //@Lock(LockType.WRITE)
     public void prepareHandshake(AgentCenter node) {
-    	//this.newAgentTypes = new ArrayList<AgentType>();
+    	Log.out(this, "prepareHandshake");
+    	this.newAgentTypes = null;
     	this.newNode = node;
     	this.handshakeInProgress = true;
     }
     
-    @Lock(LockType.WRITE)
+    //@Lock(LockType.WRITE)
     public void rollbackHandshake() {
+    	Log.out(this, "rollbackHandshake");
     	communicator.removeNode(newNode);
     	clearHandshake();
     }
     
-    @Lock(LockType.WRITE)
+    //@Lock(LockType.WRITE)
     public void commitHandshake() {
+    	Log.out(this, "commitHandshake");
     	appManager.getAllCenters().add(newNode);
     	agentManager.addAgentsType(newNode.getAlias(), newAgentTypes);   	
     	communicator.notifyNodes();
@@ -71,18 +74,22 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
     
     @Lock(LockType.WRITE)
     public void clearHandshake() {
-    	this.newAgentTypes.clear();
+    	Log.out(this, "clearHandshake");
+    	this.newAgentTypes = null;
     	this.newNode = null;
     	this.handshakeInProgress = false;
     }
     
     @Override
-    @Lock(LockType.WRITE)
+    //@Lock(LockType.WRITE)
     public boolean nodeRegister(AgentCenter node) {
+    	Log.out(this, "nodeRegister");
     	if(appManager.aliasExists(node.getAlias())) {
 			Log.out(this, "Alias exist:" + node.getAlias());
 			return false;
 		}
+    	
+    	Log.out(this, node.toString());
     	
     	if(appManager.isMaster()) {
     		prepareHandshake(node);
