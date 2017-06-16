@@ -36,14 +36,16 @@ import utils.HTTP;
 @Singleton
 @Startup
 @LocalBean
+@Lock(LockType.READ)
 public class AppManagerBean implements AppManagerBeanLocal {
 
+	//@EJB NodeManagerBean nodeManager;
 	@EJB(beanName = AppConst.COMMUNICATOR_NAME)
 	CommunicatorLocal communicator;
 	
 	private AgentCenter thisCenter;
     private AgentCenter masterCenter;
-    private ArrayList<AgentCenter> allCenters;
+    //private ArrayList<AgentCenter> allCenters;
     private ResteasyClient client;
     //private boolean isInitialized;
     
@@ -54,8 +56,9 @@ public class AppManagerBean implements AppManagerBeanLocal {
     @PostConstruct
     public void init() {
     	Log.out(this, "@PostConstruct");
-    	allCenters = new ArrayList<AgentCenter>();
+    	//allCenters = new ArrayList<AgentCenter>();
     	client = new ResteasyClientBuilder().connectionPoolSize(50).build();
+    	
     	startUp();
     }
     
@@ -83,10 +86,9 @@ public class AppManagerBean implements AppManagerBeanLocal {
 		
 		if(json.getBoolean("master")) {
 			Log.out(this, "Ovaj Agent Centar je master " + this.thisCenter.toString());
-			allCenters.add(this.thisCenter);
+			//nodeManager.getAllCenters().add(this.thisCenter);
 		} else {
 			Log.out(this, "Agent Centar je slave... Pokusaj konektovanja na master centar...");
-			//Log.out(this, thisCenter.toString() + " - master - " + masterCenter.toString());
 			communicator.registerNode(this.thisCenter, this.masterCenter);
 		}
 	}
@@ -128,14 +130,6 @@ public class AppManagerBean implements AppManagerBeanLocal {
 		this.masterCenter = masterCenter;
 	}
 
-	public ArrayList<AgentCenter> getAllCenters() {
-		return allCenters;
-	}
-
-	public void setAllCenters(ArrayList<AgentCenter> allCenters) {
-		this.allCenters = allCenters;
-	}
-
 	public ResteasyClient getClient() {
 		return client;
 	}
@@ -143,27 +137,10 @@ public class AppManagerBean implements AppManagerBeanLocal {
 	public void setClient(ResteasyClient client) {
 		this.client = client;
 	}
-
-	@Override
-	public Boolean aliasExists(String alias) {
-		for(AgentCenter h : allCenters) {
-			if(h.getAlias().equals(alias)) {
-				return true;
-			}
-		}
-		return false;
-	}
 	
 	public Boolean isMaster() {
 		return thisCenter.equals(masterCenter);
 	}
 	
-	public AgentCenter getAgentCenter(String alias) {
-		for(AgentCenter ac : allCenters) {
-			if(ac.getAlias().equals(alias)) {
-				return ac;
-			}
-		}
-		return null;
-	}
+	
 }

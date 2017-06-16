@@ -9,12 +9,16 @@ import models.AgentCenter;
 @Local
 public interface NodeManagerBeanLocal {
 
-	boolean nodeRegister(AgentCenter node);
+	ArrayList<AgentCenter> nodeRegister(AgentCenter node);
 
 	void updateHost(ArrayList<AgentCenter> nodes);
 
 	void unregister(AgentCenter node);
 
 	boolean deleteNode(String alias);
+
+	Boolean nodeExists(String alias);
+
+	AgentCenter getAgentCenter(String alias);
 
 }

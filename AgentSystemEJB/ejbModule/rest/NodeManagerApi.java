@@ -36,44 +36,39 @@ public class NodeManagerApi {
 	@EJB NodeManagerBean nodeManager;
 	@EJB AppManagerBean appManager;
 	
+	//step 1 from slave
 	@POST
 	@Path("/node")
 	public Response nodeRegister(AgentCenter node) {
 		Log.out(this, "POST /node");
 		
-		boolean success = nodeManager.nodeRegister(node);
-		if(!success) {
+		ArrayList<AgentCenter> nodes = nodeManager.nodeRegister(node);
+		if(nodes == null) {
 			return HTTP.BAD_400("There was error in registering new node.");
 		}
 		
 		return HTTP.CREATED_201("ok");
 	}
 	
+	//step 2 from slave
+	@POST
+    @Path("/classes/{node}")
+    public Response newClassesFromNodeInHandshake(@PathParam("node") String node, ArrayList<AgentType> types) {
+    	Log.out(this, "POST /agents/classes/{node} - " + node);
+		if(nodeManager.confirmHandshake(node, types)) {
+			return HTTP.OK_200("ok");
+		}
+		return HTTP.BAD_400("There was some error");
+    	
+    }
+	
 	@POST
 	@Path("/node/update")
 	public Response nodeUpdate(ArrayList<AgentCenter> nodes) {
 		Log.out(this, "POST /node");
-		appManager.setAllCenters(nodes);
+		nodeManager.setAllCenters(nodes);
 		return HTTP.OK_200(nodes);
 	}
-	
-	/*
-	@GET
-	@Path("/agents/classes")
-	public ArrayList<AgentType> agentTypes() {
-		Log.out(this, "GET /agents/classes");
-		return agentManager.getMyAgentTypes();
-	}
-	
-	
-	@POST
-	@Path("/agents/running")
-	public ArrayList<AID> newRunningAgents(ArrayList<AID> agents) {
-		Log.out(this, "POST /agents/running");
-		return agentManager.getRunningAgents();
-	}
-	
-	*/
 	
 	@GET
     @Path("/node")
@@ -86,7 +81,7 @@ public class NodeManagerApi {
     @Path("/nodes")
     public ArrayList<AgentCenter> allNodes() {
     	//Log.out(this, "status called");
-    	return appManager.getAllCenters();
+    	return nodeManager.getAllCenters();
     }
 	
 	@DELETE

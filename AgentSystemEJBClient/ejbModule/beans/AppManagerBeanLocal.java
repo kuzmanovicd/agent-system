@@ -11,6 +11,4 @@ public interface AppManagerBeanLocal {
 
 	JSONObject load();
 
-	Boolean aliasExists(String alias);
-
 }

@@ -28,7 +28,7 @@ import utils.HTTP;
 /**
  * Session Bean implementation class NodeManagerBean
  */
-@Stateful
+@Singleton
 @Startup
 @LocalBean
 //@ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
@@ -36,9 +36,12 @@ import utils.HTTP;
 public class NodeManagerBean implements NodeManagerBeanLocal {
 
 	@EJB AppManagerBean appManager;
+	@EJB NodeManagerBean nodeManager;
 	@EJB AgentManager agentManager;
 	@EJB(beanName = AppConst.COMMUNICATOR_NAME)
 	CommunicatorLocal communicator;
+	
+	private ArrayList<AgentCenter> allCenters;
 	
 	private ArrayList<AgentType> newAgentTypes;
 	private AgentCenter newNode;
@@ -46,10 +49,23 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 	
     public NodeManagerBean() {
         // TODO Auto-generated constructor stub
+    	allCenters = new ArrayList<AgentCenter>();
+    }
+    
+    @PostConstruct
+    public void init() {
+    	//allCenters
+    	if(appManager.isMaster()) {
+    		Log.out(this, "@PostConstruct master");
+    		allCenters.add(appManager.getThisCenter());
+    	} else {
+    		Log.out(this, "@PostConstruct slave");
+    	}
+    	
     }
     
     //@Lock(LockType.WRITE)
-    public void prepareHandshake(AgentCenter node) {
+    private void prepareHandshake(AgentCenter node) {
     	Log.out(this, "prepareHandshake");
     	this.newAgentTypes = null;
     	this.newNode = node;
@@ -57,23 +73,23 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
     }
     
     //@Lock(LockType.WRITE)
-    public void rollbackHandshake() {
+    private void rollbackHandshake() {
     	Log.out(this, "rollbackHandshake");
     	communicator.removeNode(newNode);
     	clearHandshake();
     }
     
     //@Lock(LockType.WRITE)
-    public void commitHandshake() {
+    private void commitHandshake() {
     	Log.out(this, "commitHandshake");
-    	appManager.getAllCenters().add(newNode);
+    	getAllCenters().add(newNode);
     	agentManager.addAgentsType(newNode.getAlias(), newAgentTypes);   	
     	communicator.notifyNodes();
     	clearHandshake();
     }
     
     @Lock(LockType.WRITE)
-    public void clearHandshake() {
+    private void clearHandshake() {
     	Log.out(this, "clearHandshake");
     	this.newAgentTypes = null;
     	this.newNode = null;
@@ -82,41 +98,53 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
     
     @Override
     //@Lock(LockType.WRITE)
-    public boolean nodeRegister(AgentCenter node) {
+    public ArrayList<AgentCenter> nodeRegister(AgentCenter node) {
     	Log.out(this, "nodeRegister");
-    	if(appManager.aliasExists(node.getAlias())) {
+    	if(nodeManager.nodeExists(node.getAlias())) {
 			Log.out(this, "Alias exist:" + node.getAlias());
-			return false;
+			return null;
 		}
     	
     	Log.out(this, node.toString());
     	
     	if(appManager.isMaster()) {
     		prepareHandshake(node);
-    		newAgentTypes = communicator.retrieveAgentCenterClasses(node);
     		
+    		/* delete retrieveAgentCenterClasses
+    		newAgentTypes = communicator.retrieveAgentCenterClasses(node);
     		if(newAgentTypes != null) {
     			commitHandshake();
     			return true;
     		} else {
     			rollbackHandshake();
     			return false;
-    		}   		
-    	}   	
-    	return false;	
+    		}
+    		*/
+    	}
+    	return nodeManager.getAllCenters();
+    }
+    
+    public boolean confirmHandshake(String node, ArrayList<AgentType> types) {
+    	if(appManager.isMaster() && newNode.getAlias().equals(node)) {
+    		newAgentTypes = types;
+    		commitHandshake();
+    		return true;
+    	}
+    	
+    	return false;
     }
     
     @Override
     public void updateHost(ArrayList<AgentCenter> nodes) {
-    	appManager.getAllCenters().clear();
-    	appManager.getAllCenters().addAll(nodes);
+    	getAllCenters().clear();
+    	getAllCenters().addAll(nodes);
     }
     
     @Override
     public void unregister(AgentCenter node) {
-    	for(AgentCenter n : appManager.getAllCenters()) {
+    	for(AgentCenter n : getAllCenters()) {
     		if(n.equals(node)) {
-    			appManager.getAllCenters().remove(n);
+    			getAllCenters().remove(n);
     			break;
     		}
     	}
@@ -127,4 +155,31 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
     	return false;
     }
 
+	public ArrayList<AgentCenter> getAllCenters() {
+		return allCenters;
+	}
+
+	public void setAllCenters(ArrayList<AgentCenter> allCenters) {
+		this.allCenters = allCenters;
+	}
+	
+	@Override
+	public Boolean nodeExists(String alias) {
+		for(AgentCenter h : allCenters) {
+			if(h.getAlias().equals(alias)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public AgentCenter getAgentCenter(String alias) {
+		for(AgentCenter ac : allCenters) {
+			if(ac.getAlias().equals(alias)) {
+				return ac;
+			}
+		}
+		return null;
+	}
 }

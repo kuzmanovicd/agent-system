@@ -26,6 +26,7 @@ public class RestCommunicator implements CommunicatorLocal {
 
 	@EJB AgentManager agentManager;
 	@EJB AppManagerBean appManager;
+	@EJB NodeManagerBean nodeManager;
 	private ResteasyClient restClient;
 	
     public RestCommunicator() {
@@ -37,9 +38,9 @@ public class RestCommunicator implements CommunicatorLocal {
     	//agentManager.stopAgentsForCenter(node);
     	agentManager.getAgentTypes().remove(node.getAlias());
     	
-    	for(AgentCenter ac : appManager.getAllCenters()) {
+    	for(AgentCenter ac : nodeManager.getAllCenters()) {
     		if(ac.equals(node)) {
-    			appManager.getAllCenters().remove(ac);
+    			nodeManager.getAllCenters().remove(ac);
     			break;
     		}
     	}
@@ -50,13 +51,13 @@ public class RestCommunicator implements CommunicatorLocal {
     @Override
     public void notifyNodes() {
     	Log.out(this, "notifyNodes");
-    	for(AgentCenter node : appManager.getAllCenters()) {
+    	for(AgentCenter node : nodeManager.getAllCenters()) {
     		if(node.equals(appManager.getThisCenter())) {
     			continue;
     		}
     		
     		String url = HTTP.gen(node.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "/cluster/node/update";
-    		HTTP.post(restClient, url, appManager.getAllCenters()).close();
+    		HTTP.post(restClient, url, nodeManager.getAllCenters()).close();
     		
     		url = HTTP.gen(node.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "/agents/classes";
     		HTTP.post(restClient, url, agentManager.getAgentTypes()).close();
