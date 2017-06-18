@@ -18,14 +18,12 @@ import javax.ejb.Startup;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 import agents.AgentManager;
 import models.AgentCenter;
 import models.AgentType;
 import proxy.NodeManagerProxy;
 import utils.AppConst;
-import utils.HTTP;
 import utils.Log;
 
 /**
@@ -45,6 +43,8 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 	AgentManager agentManager;
 	@EJB(beanName = AppConst.COMMUNICATOR_NAME)
 	CommunicatorLocal communicator;
+
+	private boolean isInitialized = false;
 
 	private boolean isMaster = false;
 	private AgentCenter thisCenter;
@@ -70,6 +70,11 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 
 	@PostConstruct
 	private void init() {
+
+		if (isInitialized) {
+			return;
+		}
+
 		thisCenter = appManager.getThisCenter();
 		masterCenter = appManager.getMasterCenter();
 
@@ -78,20 +83,13 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 			addCenter(appManager.getThisCenter());
 			isMaster = true;
 		} else {
-
 			Log.out(this, "@PostConstruct slave");
-			String url = HTTP.gen(appManager.getMasterCenter().getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT)
-					+ "cluster";
-			ResteasyWebTarget rtarget = client.target(url);
-			masterRest = (NodeManagerProxy) rtarget.proxy(NodeManagerProxy.class);
-
 			try {
-				ArrayList<AgentCenter> nodes = masterRest.nodeRegister(appManager.getThisCenter());
+				ArrayList<AgentCenter> nodes = communicator.nodeRegister();
 				setAllCenters(nodes);
 				Log.out(this, "Dobavio agent centre");
 
-				HashMap<String, ArrayList<AgentType>> agents = masterRest.newClassesFromNodeInHandshake(
-						appManager.getThisCenter().getAlias(), agentManager.getMyAgentTypes());
+				HashMap<String, ArrayList<AgentType>> agents = communicator.pushAndGetAgentTypes(agentManager.getMyAgentTypes());
 				if (agents != null) {
 					agentManager.setAgentTypes(agents);
 					Log.out(this, "Dobavio tipove agenata");
@@ -105,6 +103,7 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 			}
 
 		}
+		isInitialized = true;
 
 	}
 
@@ -112,7 +111,7 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 	private void destroy() {
 		Log.out(this, "@PreDestroy");
 		if (!isMaster) {
-			masterRest.deleteNode(thisCenter.getAlias());
+			communicator.nodeDelete();
 		}
 	}
 
@@ -128,7 +127,8 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 		return newCenter;
 	}
 
-	// @Lock(LockType.WRITE)
+	@Lock(LockType.WRITE)
+	@Deprecated
 	private void rollbackHandshake() {
 		Log.out(this, "rollbackHandshake");
 		communicator.removeNode(newNode);
@@ -180,13 +180,8 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 	}
 
 	@Override
-	public void updateHost(ArrayList<AgentCenter> nodes) {
-
-	}
-
-	@Override
 	@Lock(LockType.WRITE)
-	public boolean deleteNode(String alias) {
+	public boolean nodeDelete(String alias) {
 		Log.out(this, "DeleteNode");
 		for (AgentCenter ac : allCenters) {
 			if (ac.getAlias().equals(alias)) {
@@ -203,6 +198,7 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 		return allCenters;
 	}
 
+	@Lock(LockType.WRITE)
 	public void setAllCenters(ArrayList<AgentCenter> allCenters) {
 		this.allCenters = allCenters;
 	}
@@ -227,6 +223,7 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 		return null;
 	}
 
+	@Lock(LockType.WRITE)
 	public void addCenter(AgentCenter node) {
 		for (AgentCenter ac : getAllCenters()) {
 			if (ac.equals(node)) {
@@ -241,25 +238,35 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 		if (appManager.isMaster()) {
 			for (AgentCenter node : getAllCenters()) {
 				if (!node.equals(appManager.getMasterCenter())) {
-
-					// rest
-					String url = HTTP.gen(node.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "cluster";
-					ResteasyWebTarget rtarget = client.target(url);
-					NodeManagerProxy rest = (NodeManagerProxy) rtarget.proxy(NodeManagerProxy.class);
-
-					try {
-						rest.status();
+					if (communicator.heartbeat(node)) {
 						heartBeatCounter.put(node.getAlias(), 0);
-					} catch (Exception e) {
+						Log.out(this, node.getAlias() + " is alive...");
+					} else {
 						int counter = heartBeatCounter.get(node.getAlias());
 						if (counter > 1) {
-							deleteNode(node.getAlias());
+							nodeDelete(node.getAlias());
 						} else {
 							counter++;
 							heartBeatCounter.put(node.getAlias(), counter);
 						}
 						Log.out(this, "Node " + node.toString() + " is not responding... Trying again");
 					}
+
+					/*
+					try {
+						rest.status();
+						heartBeatCounter.put(node.getAlias(), 0);
+					} catch (Exception e) {
+						int counter = heartBeatCounter.get(node.getAlias());
+						if (counter > 1) {
+							nodeDelete(node.getAlias());
+						} else {
+							counter++;
+							heartBeatCounter.put(node.getAlias(), counter);
+						}
+						Log.out(this, "Node " + node.toString() + " is not responding... Trying again");
+					}
+					*/
 				}
 
 			}

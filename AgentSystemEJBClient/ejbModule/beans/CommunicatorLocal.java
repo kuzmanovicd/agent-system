@@ -1,10 +1,9 @@
 package beans;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.ejb.Local;
-
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 
 import models.AgentCenter;
 import models.AgentType;
@@ -16,6 +15,12 @@ public interface CommunicatorLocal {
 
 	void notifyNodes();
 
-	void registerNode(AgentCenter thisCenter, AgentCenter masterCenter);
+	ArrayList<AgentCenter> nodeRegister();
+
+	HashMap<String, ArrayList<AgentType>> pushAndGetAgentTypes(ArrayList<AgentType> types);
+
+	void nodeDelete();
+
+	boolean heartbeat(AgentCenter node);
 
 }

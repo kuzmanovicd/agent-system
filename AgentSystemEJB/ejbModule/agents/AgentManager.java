@@ -33,6 +33,13 @@ import utils.Log;
 @Lock(LockType.READ)
 public class AgentManager implements AgentManagerLocal {
 
+	/*
+	 * pointcut newAgent(): execution (* agents.AgentManager.*(..));
+	 * 
+	 * before():newAgent() { Log.out("AOP - " +
+	 * thisJoinPoint.getTarget().getClass().getName()); }
+	 */
+
 	// private HashMap<String, Class> agentClasses;
 
 	@EJB
@@ -43,7 +50,6 @@ public class AgentManager implements AgentManagerLocal {
 
 	private ArrayList<AgentType> myAgentTypes;
 
-	// String is alias of the Agent center where agent is running
 	private ArrayList<AID> runningAgents;
 
 	// String is class name of the Agent for easier retrival
@@ -68,6 +74,7 @@ public class AgentManager implements AgentManagerLocal {
 		}
 	}
 
+	@Lock(LockType.WRITE)
 	public void generateAgentClasses() {
 		Log.out(this, "generateAgentClasses");
 
@@ -90,12 +97,14 @@ public class AgentManager implements AgentManagerLocal {
 	}
 
 	@Override
+	@Lock(LockType.WRITE)
 	public boolean addAgentsType(String alias, ArrayList<AgentType> types) {
 		agentTypes.put(alias, types);
 		return false;
 	}
 
 	@Override
+	@Lock(LockType.WRITE)
 	public boolean addMyAgentType(AgentType type) {
 		if (!myAgentTypes.contains(type)) {
 			myAgentTypes.add(type);
@@ -105,6 +114,7 @@ public class AgentManager implements AgentManagerLocal {
 	}
 
 	@Override
+	@Lock(LockType.WRITE)
 	public BaseAgent startAgent(String agentName) {
 		AgentType atype = getMyAgent(agentName);
 		if (atype != null) {
@@ -132,8 +142,8 @@ public class AgentManager implements AgentManagerLocal {
 	}
 
 	@Override
-	public boolean stopAgent(AID id) {
-		return true;
+	public BaseAgent stopAgent(String name) {
+		return myRunningAgents.remove(name);
 	}
 
 	// getters and setters

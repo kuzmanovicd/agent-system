@@ -11,9 +11,7 @@ public interface NodeManagerBeanLocal {
 
 	ArrayList<AgentCenter> nodeRegister(AgentCenter node);
 
-	void updateHost(ArrayList<AgentCenter> nodes);
-
-	boolean deleteNode(String alias);
+	boolean nodeDelete(String alias);
 
 	Boolean nodeExists(String alias);
 

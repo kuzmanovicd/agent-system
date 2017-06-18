@@ -78,7 +78,7 @@ public class NodeManagerApi implements NodeManagerProxy {
 	@DELETE
 	@Path("/node/{alias}")
 	public Response deleteNode(@PathParam("alias") String alias) {
-		nodeManager.deleteNode(alias);
+		nodeManager.nodeDelete(alias);
 		return HTTP.OK_200("ok");
 	}
 
