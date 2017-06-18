@@ -1,6 +1,7 @@
 package proxy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -12,10 +13,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import logger.Log;
 import models.AgentCenter;
 import models.AgentType;
 import utils.HTTP;
+import utils.Log;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -23,11 +24,11 @@ public interface NodeManagerProxy {
 
 	@POST
 	@Path("/node")
-	public Response nodeRegister(AgentCenter node);
+	public ArrayList<AgentCenter> nodeRegister(AgentCenter node);
 	
 	@POST
     @Path("/classes/{node}")
-    public Response newClassesFromNodeInHandshake(@PathParam("node") String node, ArrayList<AgentType> types);
+    public HashMap<String, ArrayList<AgentType>> newClassesFromNodeInHandshake(@PathParam("node") String node, ArrayList<AgentType> types);
 	
 	@POST
 	@Path("/node/update")
@@ -35,7 +36,7 @@ public interface NodeManagerProxy {
 	
 	@GET
     @Path("/node")
-    public Response status();
+    public String status();
 	
 	@GET
     @Path("/nodes")

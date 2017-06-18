@@ -50,6 +50,10 @@ public class AgentType implements Serializable {
 		return false;
 	}
 
+	@Override
+	public String toString() {
+		return "AgentType [name = " + name + "; module = " + module + "]";
+	}
 	
 	
 }

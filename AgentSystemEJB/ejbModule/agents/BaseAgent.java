@@ -8,7 +8,7 @@ public abstract class BaseAgent implements Agent {
 	
 	private static final long serialVersionUID = 1L;
 	
-	protected AID myAID;
+	protected AID AID;
 	
 	@Override
 	public void init(AID id) {
@@ -31,16 +31,19 @@ public abstract class BaseAgent implements Agent {
 	}
 	
 	@Override
-	public void handleMessage(ACLMessage msg) {
-		
+	public abstract void handleMessage(ACLMessage msg);
+
+	public AID getAID() {
+		return AID;
 	}
 
-	public AID getMyAID() {
-		return myAID;
+	public void setAID(AID AID) {
+		this.AID = AID;
 	}
-
-	public void setMyAID(AID myAID) {
-		this.myAID = myAID;
+	
+	@Override
+	public String toString() {
+		return "Agent [id=" + AID.getName() + "]";
 	}
 	
 	

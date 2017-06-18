@@ -6,7 +6,7 @@ public class AID implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private AgentCenter host;
+	private AgentCenter node;
 	private String name;
 	private AgentType type;
 	
@@ -14,19 +14,19 @@ public class AID implements Serializable {
 		super();
 	}
 	
-	public AID(AgentCenter host, String name, AgentType type) {
+	public AID(AgentCenter node, String name, AgentType type) {
 		super();
-		this.host = host;
+		this.node = node;
 		this.name = name;
 		this.type = type;
 	}
 
 	public AgentCenter getHost() {
-		return host;
+		return node;
 	}
 
 	public void setHost(AgentCenter host) {
-		this.host = host;
+		this.node = host;
 	}
 
 	public String getName() {

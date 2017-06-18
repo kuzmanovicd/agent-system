@@ -13,8 +13,6 @@ public interface NodeManagerBeanLocal {
 
 	void updateHost(ArrayList<AgentCenter> nodes);
 
-	void unregister(AgentCenter node);
-
 	boolean deleteNode(String alias);
 
 	Boolean nodeExists(String alias);

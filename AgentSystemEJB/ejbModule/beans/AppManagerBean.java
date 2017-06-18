@@ -23,23 +23,24 @@ import javax.ejb.LockType;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.json.JSONObject;
 
-import logger.Log;
 import models.AgentCenter;
+import proxy.NodeManagerProxy;
 import utils.AppConst;
 import utils.HTTP;
+import utils.Log;
 
 /**
  * Session Bean implementation class AppManagerBean
  */
 @Singleton
-@Startup
+//@Startup
 @LocalBean
 @Lock(LockType.READ)
 public class AppManagerBean implements AppManagerBeanLocal {
 
-	//@EJB NodeManagerBean nodeManager;
 	@EJB(beanName = AppConst.COMMUNICATOR_NAME)
 	CommunicatorLocal communicator;
 	
@@ -47,7 +48,7 @@ public class AppManagerBean implements AppManagerBeanLocal {
     private AgentCenter masterCenter;
     //private ArrayList<AgentCenter> allCenters;
     private ResteasyClient client;
-    //private boolean isInitialized;
+    private NodeManagerProxy masterRest;
     
     public AppManagerBean() {
         
@@ -57,8 +58,7 @@ public class AppManagerBean implements AppManagerBeanLocal {
     public void init() {
     	Log.out(this, "@PostConstruct");
     	//allCenters = new ArrayList<AgentCenter>();
-    	client = new ResteasyClientBuilder().connectionPoolSize(50).build();
-    	
+    	client = new ResteasyClientBuilder().connectionPoolSize(10).build();
     	startUp();
     }
     
@@ -66,31 +66,36 @@ public class AppManagerBean implements AppManagerBeanLocal {
     public void destroy() {
     	Log.out(this, "@PreDestroy");
     	if(!isMaster()) {
-    		String uri = HTTP.gen(this.masterCenter.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "cluster/unregister";
-    		HTTP.post(getClient(), uri, this.thisCenter).close();
+
     	}
-    	
     }
     
     @Override
 	public void startUp() {
-		
 		JSONObject json = load();
-		
 		JSONObject host = json.getJSONObject("this_host");
 		JSONObject master = json.getJSONObject("master_host");
-		
 		
 		this.thisCenter = new AgentCenter(host.getString("address"), host.getString("alias"));
 		this.masterCenter = new AgentCenter(master.getString("address"), master.getString("alias"));
 		
+		String url = HTTP.gen(masterCenter.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "cluster";
+    	ResteasyWebTarget rtarget = client.target(url);
+    	masterRest = (NodeManagerProxy) rtarget.proxy(NodeManagerProxy.class);
+		
+    	/*
 		if(json.getBoolean("master")) {
 			Log.out(this, "Ovaj Agent Centar je master " + this.thisCenter.toString());
-			//nodeManager.getAllCenters().add(this.thisCenter);
 		} else {
 			Log.out(this, "Agent Centar je slave... Pokusaj konektovanja na master centar...");
-			communicator.registerNode(this.thisCenter, this.masterCenter);
+			/*
+			ArrayList<AgentCenter> nodes = masterRest.nodeRegister(thisCenter);
+			Log.out(this, "prosao proxy");
+			nodeManager.setAllCenters(nodes);
+			Log.out(this, "Registrovao uspesno");
+			
 		}
+    	 */
 	}
 		
 	@Override

@@ -10,8 +10,6 @@ import javax.ws.rs.core.Response;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
-import logger.Log;
-
 public class HTTP {
 	
 	private final static Boolean print = true;

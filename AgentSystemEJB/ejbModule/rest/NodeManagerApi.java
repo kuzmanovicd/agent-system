@@ -17,21 +17,22 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import beans.AgentManager;
+import agents.AgentManager;
 import beans.AppManagerBean;
 import beans.NodeManagerBean;
-import logger.Log;
 import models.AID;
 import models.AgentCenter;
 import models.AgentType;
+import proxy.NodeManagerProxy;
 import utils.HTTP;
+import utils.Log;
 
 @Stateless
 //@RequestScoped
 @Path("/cluster")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class NodeManagerApi {
+public class NodeManagerApi implements NodeManagerProxy {
 	
 	@EJB NodeManagerBean nodeManager;
 	@EJB AppManagerBean appManager;
@@ -39,26 +40,17 @@ public class NodeManagerApi {
 	//step 1 from slave
 	@POST
 	@Path("/node")
-	public Response nodeRegister(AgentCenter node) {
+	public ArrayList<AgentCenter> nodeRegister(AgentCenter node) {
 		Log.out(this, "POST /node");
-		
-		ArrayList<AgentCenter> nodes = nodeManager.nodeRegister(node);
-		if(nodes == null) {
-			return HTTP.BAD_400("There was error in registering new node.");
-		}
-		
-		return HTTP.CREATED_201("ok");
+		return nodeManager.nodeRegister(node);
 	}
 	
 	//step 2 from slave
 	@POST
     @Path("/classes/{node}")
-    public Response newClassesFromNodeInHandshake(@PathParam("node") String node, ArrayList<AgentType> types) {
+    public HashMap<String, ArrayList<AgentType>> newClassesFromNodeInHandshake(@PathParam("node") String node, ArrayList<AgentType> types) {
     	Log.out(this, "POST /agents/classes/{node} - " + node);
-		if(nodeManager.confirmHandshake(node, types)) {
-			return HTTP.OK_200("ok");
-		}
-		return HTTP.BAD_400("There was some error");
+		return nodeManager.confirmHandshake(node, types);
     	
     }
 	
@@ -72,9 +64,8 @@ public class NodeManagerApi {
 	
 	@GET
     @Path("/node")
-    public Response status() {
-    	//Log.out(this, "status called");
-    	return HTTP.OK_200("online");
+    public String status() {
+    	return "Node is online.";
     }
 	
 	@GET
@@ -87,7 +78,8 @@ public class NodeManagerApi {
 	@DELETE
 	@Path("/node/{alias}")
 	public Response deleteNode(@PathParam("alias") String alias) {
-		return null;
+		nodeManager.deleteNode(alias);
+		return HTTP.OK_200("ok");
 	}
 
 }

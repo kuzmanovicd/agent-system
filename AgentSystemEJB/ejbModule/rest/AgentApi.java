@@ -17,29 +17,38 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import beans.AgentManager;
+import agents.AgentManager;
 import beans.AppManagerBean;
 import beans.NodeManagerBean;
-import logger.Log;
 import models.AID;
 import models.AgentType;
+import proxy.AgentProxy;
 import utils.HTTP;
+import utils.Log;
 
 @Stateless
 //@RequestScoped
 @Path("/agents")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class AgentApi {
+public class AgentApi implements AgentProxy {
 
 	@EJB AgentManager agentManager;
 	
+	
     @GET
-    @Path("/classes")
+    @Path("/classes/my")
     public ArrayList<AgentType> getMyClasses() {
     	Log.out(this, "GET /agents/classes");
-		//return agentManager.getMyAgentTypes();
-    	return new ArrayList<AgentType>();
+		return agentManager.getMyAgentTypes();
+    }
+    
+    
+    @GET
+    @Path("/classes/all")
+    public HashMap<String, ArrayList<AgentType>> getAllClasses() {
+    	Log.out(this, "GET /agents/classes");
+		return agentManager.getAgentTypes();
     }
     
     @POST

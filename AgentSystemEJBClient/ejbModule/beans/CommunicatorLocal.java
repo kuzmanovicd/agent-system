@@ -16,8 +16,6 @@ public interface CommunicatorLocal {
 
 	void notifyNodes();
 
-	ArrayList<AgentType> retrieveAgentCenterClasses(AgentCenter node);
-
 	void registerNode(AgentCenter thisCenter, AgentCenter masterCenter);
 
 }

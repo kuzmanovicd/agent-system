@@ -8,7 +8,7 @@ function ConnectionService($websocket, $rootScope, $timeout, $location) {
 	link.setAttribute('href', window.location.href);
 
 	var services = {};
-	services.stream = $websocket('ws://' + link.hostname + ':' + link.port + '/UIChatApp/websocket');
+	services.stream = $websocket('ws://' + link.hostname + ':' + link.port + '/AgentSystemWAR/websocket');
 	services.messages = [];
 	
 	services.stream.onMessage(function(message) {
