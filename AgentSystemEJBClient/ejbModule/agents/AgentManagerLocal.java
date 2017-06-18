@@ -17,8 +17,8 @@ public interface AgentManagerLocal {
 
 	HashMap<String, ArrayList<AgentType>> getAgentTypes();
 
-	boolean startAgent(AID id);
-
 	boolean stopAgent(AID id);
+
+	BaseAgent startAgent(String agentName);
 
 }

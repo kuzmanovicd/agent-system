@@ -46,7 +46,7 @@ public class AgentManager implements AgentManagerLocal {
 	// String is alias of the Agent center where agent is running
 	private ArrayList<AID> runningAgents;
 
-	// String is AID of the Agent for easier retrival
+	// String is class name of the Agent for easier retrival
 	private HashMap<String, BaseAgent> myRunningAgents;
 
 	public AgentManager() {
@@ -75,7 +75,7 @@ public class AgentManager implements AgentManagerLocal {
 			Reflections reflections = new Reflections("agents");
 			Set<Class<? extends BaseAgent>> classes = reflections.getSubTypesOf(BaseAgent.class);
 			for (Class c : classes) {
-				AgentType type = new AgentType(c.getName(), c.getName());
+				AgentType type = new AgentType(c.getName(), c.getName(), c);
 				Log.out(this, type.toString());
 				myAgentTypes.add(type);
 			}
@@ -105,8 +105,30 @@ public class AgentManager implements AgentManagerLocal {
 	}
 
 	@Override
-	public boolean startAgent(AID id) {
-		return true;
+	public BaseAgent startAgent(String agentName) {
+		AgentType atype = getMyAgent(agentName);
+		if (atype != null) {
+			try {
+				BaseAgent a = (BaseAgent) atype.getKlass().newInstance();
+				AID aid = new AID(appManager.getThisCenter(), atype.getName(), atype);
+				a.setAID(aid);
+				myRunningAgents.put(aid.getName(), a);
+				return a;
+
+			} catch (InstantiationException | IllegalAccessException e) {
+				Log.out(this, "startAgent Exception");
+			}
+		}
+		return null;
+	}
+
+	public AgentType getMyAgent(String agentName) {
+		for (AgentType at : myAgentTypes) {
+			if (at.getName().equals(agentName)) {
+				return at;
+			}
+		}
+		return null;
 	}
 
 	@Override
