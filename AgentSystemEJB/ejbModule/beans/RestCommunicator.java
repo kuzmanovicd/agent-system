@@ -12,8 +12,10 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 import agents.AgentManager;
+import models.AID;
 import models.AgentCenter;
 import models.AgentType;
+import proxy.AgentProxy;
 import proxy.NodeManagerProxy;
 import utils.AppConst;
 import utils.HTTP;
@@ -59,6 +61,22 @@ public class RestCommunicator implements CommunicatorLocal {
 			// running etc....
 		}
 		Log.out(this, "notifyNodes done");
+	}
+
+	@Override
+	public void notifyAllNodesForAgents(HashMap<String, AID> allAgents) {
+		Log.out(this, "notifyAllNodesForAgents");
+		for (AgentCenter node : nodeManager.getAllCenters()) {
+			if (node.equals(appManager.getThisCenter())) {
+				continue;
+			}
+
+			String url = HTTP.gen(node.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "agents";
+			ResteasyWebTarget rtarget = restClient.target(url);
+			AgentProxy rest = (AgentProxy) rtarget.proxy(AgentProxy.class);
+			rest.updateAllRunningAgents(allAgents);
+		}
+		Log.out(this, "notifyAllNodesForAgents done");
 	}
 
 	@Override

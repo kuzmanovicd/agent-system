@@ -10,7 +10,7 @@ public aspect Aspect {
 
 	 pointcut newAgent(): execution (* agents.AgentManager.*(..));
 	 
-	 pointcut updateRunningAgents(): set (* agents.AgentManager.myRunningAgents);
+	 pointcut updateRunningAgents(): get (* agents.AgentManager.myRunningAgents);
 	 
 	 pointcut allRestCalls(): execution (* rest.*.*(..)) ;
 	 

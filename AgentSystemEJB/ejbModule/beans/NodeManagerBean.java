@@ -240,7 +240,7 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 				if (!node.equals(appManager.getMasterCenter())) {
 					if (communicator.heartbeat(node)) {
 						heartBeatCounter.put(node.getAlias(), 0);
-						Log.out(this, node.getAlias() + " is alive...");
+						//Log.out(this, node.getAlias() + " is alive...");
 					} else {
 						int counter = heartBeatCounter.get(node.getAlias());
 						if (counter > 1) {
@@ -251,22 +251,6 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 						}
 						Log.out(this, "Node " + node.toString() + " is not responding... Trying again");
 					}
-
-					/*
-					try {
-						rest.status();
-						heartBeatCounter.put(node.getAlias(), 0);
-					} catch (Exception e) {
-						int counter = heartBeatCounter.get(node.getAlias());
-						if (counter > 1) {
-							nodeDelete(node.getAlias());
-						} else {
-							counter++;
-							heartBeatCounter.put(node.getAlias(), counter);
-						}
-						Log.out(this, "Node " + node.toString() + " is not responding... Trying again");
-					}
-					*/
 				}
 
 			}

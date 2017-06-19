@@ -17,7 +17,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import agents.AgentManager;
-import agents.BaseAgent;
 import models.AID;
 import models.AgentType;
 import proxy.AgentProxy;
@@ -56,30 +55,32 @@ public class AgentApi implements AgentProxy {
 		return HTTP.OK_200("ok");
 	}
 
-	@GET
-	@Path("/running/my")
-	public ArrayList<AID> getRunningAgents() {
-		Log.out(this, "GET /agents/running");
-		return agentManager.getMyRunningAgentsAID();
+	@POST
+	@Path("/running")
+	public String updateAllRunningAgents(HashMap<String, AID> agents) {
+		//for slaves
+		Log.out(this, "POST /running/all");
+		agentManager.setRunningAgents(agents);
+		return "ok";
 	}
 
 	@GET
-	@Path("/running/all")
-	public ArrayList<AID> getAllRunningAgents() {
+	@Path("/running")
+	public HashMap<String, AID> getAllRunningAgents() {
 		Log.out(this, "GET /agents/running");
 		return agentManager.getRunningAgents();
 	}
 
 	@PUT
 	@Path("/running/{name}")
-	public BaseAgent startAgent(@PathParam("name") String name) {
+	public AID startAgent(@PathParam("name") String name) {
 		Log.out(this, "GET /running/" + name);
 		return agentManager.startAgent(name);
 	}
 
 	@DELETE
 	@Path("/running/{aid}")
-	public BaseAgent stopAgent(@PathParam("aid") String name) {
+	public AID stopAgent(@PathParam("aid") String name) {
 		return agentManager.stopAgent(name);
 	}
 

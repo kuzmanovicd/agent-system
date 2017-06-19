@@ -3,17 +3,17 @@ package models;
 import java.io.Serializable;
 
 public class AID implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private AgentCenter node;
 	private String name;
 	private AgentType type;
-	
+
 	public AID() {
 		super();
 	}
-	
+
 	public AID(AgentCenter node, String name, AgentType type) {
 		super();
 		this.node = node;
@@ -44,18 +44,22 @@ public class AID implements Serializable {
 	public void setType(AgentType type) {
 		this.type = type;
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
-		//implement
-		return true;
+		if (o instanceof AID) {
+			AID id = (AID) o;
+			if (this.name.equals(id.getName()) && this.getHost().equals(id.getHost()) && this.getType().equals(id.getType())) {
+				return true;
+			}
+		}
+		return false;
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		//return host.getAlias()+":"+type.getName()+name;
 		return "";
 	}
-	
-	
+
 }

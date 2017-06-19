@@ -18,8 +18,11 @@ import javax.ejb.Startup;
 import org.reflections.Reflections;
 
 import beans.AppManagerBean;
+import beans.CommunicatorLocal;
 import models.AID;
+import models.AgentCenter;
 import models.AgentType;
+import utils.AppConst;
 import utils.Log;
 
 /**
@@ -32,15 +35,10 @@ import utils.Log;
 @AccessTimeout(value = 5000)
 @Lock(LockType.READ)
 public class AgentManager implements AgentManagerLocal {
-
-	/*
-	 * pointcut newAgent(): execution (* agents.AgentManager.*(..));
-	 * 
-	 * before():newAgent() { Log.out("AOP - " +
-	 * thisJoinPoint.getTarget().getClass().getName()); }
-	 */
-
 	// private HashMap<String, Class> agentClasses;
+
+	@EJB(beanName = AppConst.COMMUNICATOR_NAME)
+	CommunicatorLocal communicator;
 
 	@EJB
 	AppManagerBean appManager;
@@ -50,9 +48,8 @@ public class AgentManager implements AgentManagerLocal {
 
 	private ArrayList<AgentType> myAgentTypes;
 
-	private ArrayList<AID> runningAgents;
+	private HashMap<String, AID> runningAgents;
 
-	// String is class name of the Agent for easier retrival
 	private HashMap<String, BaseAgent> myRunningAgents;
 
 	public AgentManager() {
@@ -64,7 +61,7 @@ public class AgentManager implements AgentManagerLocal {
 		Log.out(this, "@PostConstruct");
 		agentTypes = new HashMap<>();
 		myAgentTypes = new ArrayList<AgentType>();
-		runningAgents = new ArrayList<AID>();
+		runningAgents = new HashMap<>();
 		myRunningAgents = new HashMap<String, BaseAgent>();
 
 		generateAgentClasses();
@@ -115,7 +112,7 @@ public class AgentManager implements AgentManagerLocal {
 
 	@Override
 	@Lock(LockType.WRITE)
-	public BaseAgent startAgent(String agentName) {
+	public AID startAgent(String agentName) {
 		AgentType atype = getMyAgent(agentName);
 		if (atype != null) {
 			try {
@@ -123,7 +120,9 @@ public class AgentManager implements AgentManagerLocal {
 				AID aid = new AID(appManager.getThisCenter(), atype.getName(), atype);
 				a.setAID(aid);
 				myRunningAgents.put(aid.getName(), a);
-				return a;
+				runningAgents.put(aid.getName(), aid);
+				communicator.notifyAllNodesForAgents(runningAgents);
+				return aid;
 
 			} catch (InstantiationException | IllegalAccessException e) {
 				Log.out(this, "startAgent Exception");
@@ -142,33 +141,22 @@ public class AgentManager implements AgentManagerLocal {
 	}
 
 	@Override
-	public BaseAgent stopAgent(String name) {
-		return myRunningAgents.remove(name);
+	public AID stopAgent(String name) {
+		AID ret = runningAgents.remove(name);
+		myRunningAgents.remove(name);
+		if (ret != null) {
+			communicator.notifyAllNodesForAgents(runningAgents);
+		}
+		return ret;
 	}
 
 	// getters and setters
-	public ArrayList<AID> getRunningAgents() {
+	public HashMap<String, AID> getRunningAgents() {
 		return runningAgents;
 	}
 
-	public void setRunningAgents(ArrayList<AID> runningAgents) {
+	public void setRunningAgents(HashMap<String, AID> runningAgents) {
 		this.runningAgents = runningAgents;
-	}
-
-	public HashMap<String, BaseAgent> getMyRunningAgents() {
-		return myRunningAgents;
-	}
-
-	public ArrayList<AID> getMyRunningAgentsAID() {
-		ArrayList<AID> agents = new ArrayList<AID>();
-		for (BaseAgent a : myRunningAgents.values()) {
-			agents.add(a.getAID());
-		}
-		return agents;
-	}
-
-	public void setMyRunningAgents(HashMap<String, BaseAgent> myRunningAgents) {
-		this.myRunningAgents = myRunningAgents;
 	}
 
 	public ArrayList<AgentType> getMyAgentTypes() {
@@ -183,4 +171,45 @@ public class AgentManager implements AgentManagerLocal {
 		this.agentTypes = agentTypes;
 	}
 
+	private void smallTest() {
+		AgentType at1 = new AgentType("test", "test", AgentType.class);
+		AgentType at2 = new AgentType("test", "test", AgentType.class);
+
+		if (!at1.equals(at2)) {
+			Log.out(this, "SHIT SHIT SHIT");
+		}
+
+		AgentCenter ac1 = new AgentCenter("127.0.0.1:8426", "alias");
+		AgentCenter ac2 = new AgentCenter("127.0.0.1:8426", "alias");
+
+		if (!ac1.equals(ac2)) {
+			Log.out(this, "2 SHIT SHIT SHIT");
+		}
+
+		AID id1 = new AID(ac1, "name", at1);
+		AID id2 = new AID(ac2, "name", at2);
+		AID id3 = new AID(ac2, "name2", at2);
+		AID id4 = new AID(ac2, "name", at2);
+
+		if (!id1.equals(id2)) {
+			Log.out(this, "3 SHIT SHIT SHIT");
+		}
+
+		ArrayList<AID> list1 = new ArrayList<AID>();
+		list1.add(id1);
+		if (!list1.contains(id3))
+			list1.add(id3);
+
+		Log.out(this, "list1.size() " + list1.size());
+
+		ArrayList<AID> list2 = new ArrayList<AID>();
+		list2.add(id4);
+		list2.add(id3);
+
+		Log.out(this, "list2.size() " + list2.size());
+
+		list1.addAll(list2);
+
+		Log.out(this, "list1.size() " + list1.size());
+	}
 }

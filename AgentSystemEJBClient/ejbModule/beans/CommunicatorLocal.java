@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import javax.ejb.Local;
 
+import models.AID;
 import models.AgentCenter;
 import models.AgentType;
 
@@ -22,5 +23,7 @@ public interface CommunicatorLocal {
 	void nodeDelete();
 
 	boolean heartbeat(AgentCenter node);
+
+	void notifyAllNodesForAgents(HashMap<String, AID> allAgents);
 
 }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import javax.ejb.Local;
 
+import models.AID;
 import models.AgentType;
 
 @Local
@@ -16,8 +17,8 @@ public interface AgentManagerLocal {
 
 	HashMap<String, ArrayList<AgentType>> getAgentTypes();
 
-	BaseAgent startAgent(String agentName);
+	AID startAgent(String agentName);
 
-	BaseAgent stopAgent(String name);
+	AID stopAgent(String name);
 
 }
