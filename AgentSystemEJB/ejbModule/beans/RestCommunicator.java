@@ -58,7 +58,9 @@ public class RestCommunicator implements CommunicatorLocal {
 			url = HTTP.gen(node.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "/agents/classes";
 			HTTP.post(restClient, url, agentManager.getAgentTypes()).close();
 
-			// running etc....
+			url = HTTP.gen(node.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "/agents/running";
+			HTTP.post(restClient, url, agentManager.getRunningAgents());
+
 		}
 		Log.out(this, "notifyNodes done");
 	}

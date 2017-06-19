@@ -21,7 +21,6 @@ import models.AID;
 import models.AgentType;
 import proxy.AgentProxy;
 import utils.HTTP;
-import utils.Log;
 
 @Stateless
 //@RequestScoped
@@ -36,21 +35,21 @@ public class AgentApi implements AgentProxy {
 	@GET
 	@Path("/classes/my")
 	public ArrayList<AgentType> getMyClasses() {
-		Log.out(this, "GET /agents/classes");
+		//Log.out(this, "GET /agents/classes");
 		return agentManager.getMyAgentTypes();
 	}
 
 	@GET
 	@Path("/classes/all")
 	public HashMap<String, ArrayList<AgentType>> getAllClasses() {
-		Log.out(this, "GET /agents/classes");
+		//Log.out(this, "GET /agents/classes");
 		return agentManager.getAgentTypes();
 	}
 
 	@POST
 	@Path("/classes")
 	public Response updateAllClasses(HashMap<String, ArrayList<AgentType>> types) {
-		Log.out(this, "POST /agents/classes");
+		//Log.out(this, "POST /agents/classes");
 		agentManager.setAgentTypes(types);
 		return HTTP.OK_200("ok");
 	}
@@ -59,7 +58,7 @@ public class AgentApi implements AgentProxy {
 	@Path("/running")
 	public String updateAllRunningAgents(HashMap<String, AID> agents) {
 		//for slaves
-		Log.out(this, "POST /running/all");
+		//Log.out(this, "POST /running/all");
 		agentManager.setRunningAgents(agents);
 		return "ok";
 	}
@@ -67,15 +66,15 @@ public class AgentApi implements AgentProxy {
 	@GET
 	@Path("/running")
 	public HashMap<String, AID> getAllRunningAgents() {
-		Log.out(this, "GET /agents/running");
+		//Log.out(this, "GET /agents/running");
 		return agentManager.getRunningAgents();
 	}
 
 	@PUT
-	@Path("/running/{name}")
-	public AID startAgent(@PathParam("name") String name) {
-		Log.out(this, "GET /running/" + name);
-		return agentManager.startAgent(name);
+	@Path("/running/{type}/{name}")
+	public AID startAgent(@PathParam("type") String type, @PathParam("name") String name) {
+		//Log.out(this, "GET /running/" + type + "/" + name);
+		return agentManager.startAgent(type, name);
 	}
 
 	@DELETE

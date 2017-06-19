@@ -112,12 +112,17 @@ public class AgentManager implements AgentManagerLocal {
 
 	@Override
 	@Lock(LockType.WRITE)
-	public AID startAgent(String agentName) {
-		AgentType atype = getMyAgent(agentName);
+	public AID startAgent(String agentType, String agentName) {
+
+		if (runningAgents.containsKey(agentName)) {
+			return null;
+		}
+
+		AgentType atype = getMyAgent(agentType);
 		if (atype != null) {
 			try {
 				BaseAgent a = (BaseAgent) atype.getKlass().newInstance();
-				AID aid = new AID(appManager.getThisCenter(), atype.getName(), atype);
+				AID aid = new AID(appManager.getThisCenter(), agentName, atype);
 				a.setAID(aid);
 				myRunningAgents.put(aid.getName(), a);
 				runningAgents.put(aid.getName(), aid);
@@ -141,9 +146,9 @@ public class AgentManager implements AgentManagerLocal {
 	}
 
 	@Override
-	public AID stopAgent(String name) {
-		AID ret = runningAgents.remove(name);
-		myRunningAgents.remove(name);
+	public AID stopAgent(String agentName) {
+		AID ret = runningAgents.remove(agentName);
+		myRunningAgents.remove(agentName);
 		if (ret != null) {
 			communicator.notifyAllNodesForAgents(runningAgents);
 		}

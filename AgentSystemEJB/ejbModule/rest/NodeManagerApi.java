@@ -21,7 +21,6 @@ import models.AgentCenter;
 import models.AgentType;
 import proxy.NodeManagerProxy;
 import utils.HTTP;
-import utils.Log;
 
 @Stateless
 // @RequestScoped
@@ -40,16 +39,15 @@ public class NodeManagerApi implements NodeManagerProxy {
 	@POST
 	@Path("/node")
 	public ArrayList<AgentCenter> nodeRegister(AgentCenter node) {
-		Log.out(this, "POST /node");
+		//Log.out(this, "POST /node");
 		return nodeManager.nodeRegister(node);
 	}
 
 	// step 2 from slave
 	@POST
 	@Path("/classes/{node}")
-	public HashMap<String, ArrayList<AgentType>> newClassesFromNodeInHandshake(@PathParam("node") String node,
-			ArrayList<AgentType> types) {
-		Log.out(this, "POST /agents/classes/{node} - " + node);
+	public HashMap<String, ArrayList<AgentType>> newClassesFromNodeInHandshake(@PathParam("node") String node, ArrayList<AgentType> types) {
+		//Log.out(this, "POST /agents/classes/{node} - " + node);
 		return nodeManager.confirmHandshake(node, types);
 
 	}
@@ -57,7 +55,7 @@ public class NodeManagerApi implements NodeManagerProxy {
 	@POST
 	@Path("/node/update")
 	public Response nodeUpdate(ArrayList<AgentCenter> nodes) {
-		Log.out(this, "POST /node");
+		//Log.out(this, "POST /node");
 		nodeManager.setAllCenters(nodes);
 		return HTTP.OK_200(nodes);
 	}
@@ -71,7 +69,7 @@ public class NodeManagerApi implements NodeManagerProxy {
 	@GET
 	@Path("/nodes")
 	public ArrayList<AgentCenter> allNodes() {
-		// Log.out(this, "status called");
+		// //Log.out(this, "status called");
 		return nodeManager.getAllCenters();
 	}
 

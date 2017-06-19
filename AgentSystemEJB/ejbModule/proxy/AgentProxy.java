@@ -42,8 +42,8 @@ public interface AgentProxy {
 	public HashMap<String, AID> getAllRunningAgents();
 
 	@PUT
-	@Path("/running/{name}")
-	public AID startAgent(@PathParam("name") String name);
+	@Path("/running/{type}/{name}")
+	public AID startAgent(@PathParam("type") String type, @PathParam("name") String name);
 
 	@DELETE
 	@Path("/running/{aid}")
