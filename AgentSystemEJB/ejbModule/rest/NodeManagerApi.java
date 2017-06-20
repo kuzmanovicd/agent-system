@@ -69,7 +69,7 @@ public class NodeManagerApi implements NodeManagerProxy {
 	@GET
 	@Path("/nodes")
 	public ArrayList<AgentCenter> allNodes() {
-		// //Log.out(this, "status called");
+		//Log.out(this, "status called");
 		return nodeManager.getAllCenters();
 	}
 
