@@ -176,6 +176,14 @@ public class AgentManager implements AgentManagerLocal {
 		this.agentTypes = agentTypes;
 	}
 
+	public HashMap<String, BaseAgent> getMyRunningAgents() {
+		return myRunningAgents;
+	}
+
+	public void setMyRunningAgents(HashMap<String, BaseAgent> myRunningAgents) {
+		this.myRunningAgents = myRunningAgents;
+	}
+
 	private void smallTest() {
 		AgentType at1 = new AgentType("test", "test", AgentType.class);
 		AgentType at2 = new AgentType("test", "test", AgentType.class);

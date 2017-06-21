@@ -14,8 +14,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import models.ACLMessage;
 import models.AID;
 import models.AgentType;
+import models.Performative;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -48,4 +50,16 @@ public interface AgentProxy {
 	@DELETE
 	@Path("/running/{aid}")
 	public AID stopAgent(@PathParam("aid") String aid);
+
+	@GET
+	@Path("/messages")
+	Performative[] getPerformatives();
+
+	@POST
+	@Path("/message")
+	public String sendMessage(ACLMessage message);
+
+	@GET
+	@Path("/messages/acl")
+	ACLMessage getACL();
 }

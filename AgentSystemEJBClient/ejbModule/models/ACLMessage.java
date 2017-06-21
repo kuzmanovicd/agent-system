@@ -10,7 +10,7 @@ public class ACLMessage implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	private Performative performative;
 	private AID sender;
 	private ArrayList<AID> receivers;
@@ -26,16 +26,14 @@ public class ACLMessage implements Serializable {
 	private String replyWith;
 	private String inReplyTo;
 	private long replyBy;
-	
+
 	public ACLMessage() {
 		super();
+		receivers = new ArrayList<>();
 	}
-	
-	public ACLMessage(Performative performative, AID sender, ArrayList<AID> receivers,
-			AID replyTo, String content, Object contentObject,
-			HashMap<String, Object> userArgs, String language, String encoding,
-			String ontology, String protocol, String conversationId,
-			String replyWith, String inReplyTo, long replyBy) {
+
+	public ACLMessage(Performative performative, AID sender, ArrayList<AID> receivers, AID replyTo, String content, Object contentObject, HashMap<String, Object> userArgs, String language,
+			String encoding, String ontology, String protocol, String conversationId, String replyWith, String inReplyTo, long replyBy) {
 		super();
 		this.performative = performative;
 		this.sender = sender;
@@ -53,9 +51,8 @@ public class ACLMessage implements Serializable {
 		this.inReplyTo = inReplyTo;
 		this.replyBy = replyBy;
 	}
-	
-	public ACLMessage(Performative performative, AID sender, ArrayList<AID> receivers,
-			String content, Object contentObject) {
+
+	public ACLMessage(Performative performative, AID sender, ArrayList<AID> receivers, String content, Object contentObject) {
 		super();
 		this.performative = performative;
 		this.sender = sender;
@@ -81,7 +78,7 @@ public class ACLMessage implements Serializable {
 	}
 
 	public ArrayList<AID> getReceivers() {
-		if(receivers == null) {
+		if (receivers == null) {
 			receivers = new ArrayList<AID>();
 		}
 		return receivers;
@@ -116,7 +113,7 @@ public class ACLMessage implements Serializable {
 	}
 
 	public HashMap<String, Object> getUserArgs() {
-		if(userArgs == null) {
+		if (userArgs == null) {
 			userArgs = new HashMap<String, Object>();
 		}
 		return userArgs;
@@ -189,6 +186,12 @@ public class ACLMessage implements Serializable {
 	public void setReplyBy(long replyBy) {
 		this.replyBy = replyBy;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "ACLMessage [performative=" + performative + ", sender=" + sender + ", receivers=" + receivers + ", replyTo=" + replyTo + ", content=" + content + ", contentObject=" + contentObject
+				+ ", userArgs=" + userArgs + ", language=" + language + ", encoding=" + encoding + ", ontology=" + ontology + ", protocol=" + protocol + ", conversationId=" + conversationId
+				+ ", replyWith=" + replyWith + ", inReplyTo=" + inReplyTo + ", replyBy=" + replyBy + "]";
+	}
+
 }

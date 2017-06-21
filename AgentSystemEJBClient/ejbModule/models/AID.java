@@ -58,8 +58,7 @@ public class AID implements Serializable {
 
 	@Override
 	public String toString() {
-		//return host.getAlias()+":"+type.getName()+name;
-		return "";
+		return "AID [node=" + node + ", name=" + name + ", type=" + type + "]";
 	}
 
 }

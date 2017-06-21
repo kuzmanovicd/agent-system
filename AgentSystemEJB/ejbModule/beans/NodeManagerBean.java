@@ -20,6 +20,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 import agents.AgentManager;
+import models.AID;
 import models.AgentCenter;
 import models.AgentType;
 import proxy.NodeManagerProxy;
@@ -95,6 +96,15 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 					Log.out(this, "Dobavio tipove agenata");
 				} else {
 					Log.out(this, "Neuspesno dobavio tipove agenata");
+				}
+
+				HashMap<String, AID> running = communicator.getRunningAgents();
+
+				if (running != null) {
+					agentManager.setRunningAgents(running);
+					Log.out(this, "Dobavio pokrenute agente");
+				} else {
+					Log.out(this, "Neuspesno dobavio pokrenute agente");
 				}
 
 			} catch (Exception e) {
@@ -234,6 +244,7 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 	}
 
 	@Schedule(hour = "*", minute = "*", second = "*/5", info = "Check if slaves are online", persistent = false)
+	@Lock(LockType.WRITE)
 	public void heartBeat() {
 		if (appManager.isMaster()) {
 			for (AgentCenter node : getAllCenters()) {
@@ -242,8 +253,9 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 						heartBeatCounter.put(node.getAlias(), 0);
 						//Log.out(this, node.getAlias() + " is alive...");
 					} else {
-						int counter = heartBeatCounter.get(node.getAlias());
+						Integer counter = heartBeatCounter.get(node.getAlias());
 						if (counter > 1) {
+							Log.out(this, "Deleting node: " + node);
 							nodeDelete(node.getAlias());
 						} else {
 							counter++;

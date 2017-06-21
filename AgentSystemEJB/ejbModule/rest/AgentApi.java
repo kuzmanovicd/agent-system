@@ -17,8 +17,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import agents.AgentManager;
+import mdb.AgentServicesBean;
+import models.ACLMessage;
 import models.AID;
 import models.AgentType;
+import models.Performative;
 import proxy.AgentProxy;
 import utils.HTTP;
 
@@ -31,6 +34,9 @@ public class AgentApi implements AgentProxy {
 
 	@EJB
 	AgentManager agentManager;
+
+	@EJB
+	AgentServicesBean services;
 
 	@GET
 	@Path("/classes/my")
@@ -73,7 +79,6 @@ public class AgentApi implements AgentProxy {
 	@PUT
 	@Path("/running/{type}/{name}")
 	public AID startAgent(@PathParam("type") String type, @PathParam("name") String name) {
-		//Log.out(this, "GET /running/" + type + "/" + name);
 		return agentManager.startAgent(type, name);
 	}
 
@@ -81,6 +86,33 @@ public class AgentApi implements AgentProxy {
 	@Path("/running/{aid}")
 	public AID stopAgent(@PathParam("aid") String name) {
 		return agentManager.stopAgent(name);
+	}
+
+	@POST
+	@Path("/message")
+	public String sendMessage(ACLMessage message) {
+		if (services.sendMessageToAgent(message)) {
+			return "ok";
+		} else {
+			return "error";
+		}
+	}
+
+	@GET
+	@Path("/messages")
+	@Override
+	public Performative[] getPerformatives() {
+		return Performative.values();
+	}
+
+	@GET
+	@Path("/messages/acl")
+	@Override
+	public ACLMessage getACL() {
+		ACLMessage msg = new ACLMessage();
+		msg.setPerformative(Performative.INFORM);
+		msg.setContent("evo neka poruka jebemtimilu majku 222");
+		return msg;
 	}
 
 }

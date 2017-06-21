@@ -4,7 +4,7 @@ import models.ACLMessage;
 import models.Performative;
 import utils.Log;
 
-public class PingAgent extends BaseAgent {
+public class PongAgent extends BaseAgent {
 
 	@Override
 	public void handleMessage(ACLMessage msg) {
@@ -14,12 +14,14 @@ public class PingAgent extends BaseAgent {
 			Log.out(this, msg.getContent());
 
 			if (msg.getReplyTo() != null) {
-				Long sent = Long.parseLong(msg.getReplyWith());
-				Long received = System.currentTimeMillis();
-				Log.out(this, "Message travel:" + (received - sent) + "ms");
-				msgBack.setContent("Ping!");
+				msgBack.setReplyWith(System.currentTimeMillis() + "");
+				msgBack.setSender(getAID());
+				msgBack.setPerformative(Performative.INFORM);
+				msgBack.setContent("Pong!");
+				msgBack.setReplyTo(this.getAID());
 				msgBack.getReceivers().add(msg.getReplyTo());
 				sendMessage(msgBack);
+				//services.sendMessageToAgent(msgBack);
 			}
 		}
 

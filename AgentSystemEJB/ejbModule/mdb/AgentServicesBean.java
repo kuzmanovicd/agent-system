@@ -1,9 +1,7 @@
 package mdb;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.ejb.LocalBean;
-import javax.ejb.Singleton;
+import javax.ejb.Stateless;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -19,8 +17,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import com.google.gson.Gson;
-
 import models.ACLMessage;
 import utils.AppConst;
 import utils.Log;
@@ -28,7 +24,7 @@ import utils.Log;
 /**
  * Session Bean implementation class AgentServicesBean
  */
-@Singleton
+@Stateless
 @LocalBean
 public class AgentServicesBean implements AgentServicesBeanLocal {
 
@@ -44,7 +40,7 @@ public class AgentServicesBean implements AgentServicesBeanLocal {
 		// TODO Auto-generated constructor stub
 	}
 
-	@PostConstruct
+	//@PostConstruct
 	private void init() {
 		try {
 			Context context = new InitialContext();
@@ -60,11 +56,12 @@ public class AgentServicesBean implements AgentServicesBeanLocal {
 		}
 	}
 
-	@PreDestroy
+	//@PreDestroy
 	private void destroy() {
 		try {
 			producer.close();
-			connection.stop();
+			session.close();
+			connection.close();
 		} catch (JMSException e) {
 			Log.out(this, "Destroy - Greska JMSException!!!");
 		}
@@ -72,8 +69,9 @@ public class AgentServicesBean implements AgentServicesBeanLocal {
 
 	@Override
 	public boolean sendMessageToAgent(ACLMessage message) {
+		init();
 		try {
-			String str = new Gson().toJson(message);
+			//String str = new Gson().toJson(message);
 
 			TemporaryQueue temp = session.createTemporaryQueue();
 			MessageConsumer tempConsumer = session.createConsumer(temp);
@@ -84,16 +82,23 @@ public class AgentServicesBean implements AgentServicesBeanLocal {
 			producer.send(msg);
 
 			Message ret = tempConsumer.receive(AppConst.JMS_RESPONSE_TIME);
-			Log.out(this, "Return value: " + ret.getBooleanProperty("success"));
-			return ret.getBooleanProperty("success");
+			if (ret != null) {
+				//Log.out(this, "Return value: " + ret.getBooleanProperty("success"));
+				return ret.getBooleanProperty("success");
+			} else {
+				return false;
+			}
+
 		} catch (JMSException e) {
-			Log.out(this, "JMS Exception");
+			Log.out(this, "JMS Exception" + e.getMessage());
 		}
+		destroy();
 		return false;
 	}
 
 	@Override
 	public void reply(Message msg, Boolean success) {
+		init();
 		TextMessage text;
 		try {
 			text = session.createTextMessage();
@@ -110,6 +115,7 @@ public class AgentServicesBean implements AgentServicesBeanLocal {
 		} catch (JMSException e) {
 			Log.out(this, "@reply - JMSException");
 		}
+		destroy();
 
 	}
 

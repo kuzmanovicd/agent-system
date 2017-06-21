@@ -5,6 +5,7 @@ import java.lang.annotation.Annotation;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.Path;
+import javax.annotation.PostConstruct;
 
 import org.aspectj.lang.reflect.MethodSignature;
 
@@ -23,8 +24,15 @@ public aspect Aspect {
 	 
 	 pointcut restCalls(): @annotation (Path);
 	 
+	 pointcut postConstruct(): @annotation (PostConstruct);
+	 
 	 
 	 before():restCalls() {
+		 
+		 if(thisJoinPoint.getSignature().toLongString().contains("status()")) {
+			 return;
+		 }
+		 
 		 try {
 			 MethodSignature signature = (MethodSignature) thisJoinPoint.getSignature();
 			 String output = "";
@@ -43,6 +51,11 @@ public aspect Aspect {
 		 } catch (Exception e) {
 			 Log.out("##### REST - " + thisJoinPoint.getSignature().toString());
 		 }
+	 }
+	 
+	 after():postConstruct() {
+		 Log.out("##### PostConstruct - " + thisJoinPoint.getSignature().toString());
+		 
 	 }
 	 
 	 

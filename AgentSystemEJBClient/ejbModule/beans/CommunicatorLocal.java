@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import javax.ejb.Local;
 
+import models.ACLMessage;
 import models.AID;
 import models.AgentCenter;
 import models.AgentType;
@@ -25,5 +26,9 @@ public interface CommunicatorLocal {
 	boolean heartbeat(AgentCenter node);
 
 	void notifyAllNodesForAgents(HashMap<String, AID> allAgents);
+
+	void sendMessageToNode(ACLMessage message, AgentCenter destination);
+
+	HashMap<String, AID> getRunningAgents();
 
 }

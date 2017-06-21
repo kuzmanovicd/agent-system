@@ -12,6 +12,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 import agents.AgentManager;
+import models.ACLMessage;
 import models.AID;
 import models.AgentCenter;
 import models.AgentType;
@@ -82,6 +83,16 @@ public class RestCommunicator implements CommunicatorLocal {
 	}
 
 	@Override
+	public void sendMessageToNode(ACLMessage message, AgentCenter destination) {
+		String url = HTTP.gen(destination.getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "agents";
+		ResteasyWebTarget rtarget = restClient.target(url);
+		AgentProxy rest = (AgentProxy) rtarget.proxy(AgentProxy.class);
+
+		rest.sendMessage(message);
+
+	}
+
+	@Override
 	public ArrayList<AgentCenter> nodeRegister() {
 		String url = HTTP.gen(appManager.getMasterCenter().getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "cluster";
 		ResteasyWebTarget rtarget = restClient.target(url);
@@ -104,6 +115,14 @@ public class RestCommunicator implements CommunicatorLocal {
 		ResteasyWebTarget rtarget = restClient.target(url);
 		NodeManagerProxy rest = (NodeManagerProxy) rtarget.proxy(NodeManagerProxy.class);
 		return rest.newClassesFromNodeInHandshake(appManager.getThisCenter().getAlias(), types);
+	}
+
+	@Override
+	public HashMap<String, AID> getRunningAgents() {
+		String url = HTTP.gen(appManager.getMasterCenter().getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "agents";
+		ResteasyWebTarget rtarget = restClient.target(url);
+		AgentProxy rest = (AgentProxy) rtarget.proxy(AgentProxy.class);
+		return rest.getAllRunningAgents();
 	}
 
 	@Override
