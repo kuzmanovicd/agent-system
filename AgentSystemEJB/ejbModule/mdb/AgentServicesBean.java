@@ -1,6 +1,11 @@
 package mdb;
 
+import javax.ejb.AccessTimeout;
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.LocalBean;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
 import javax.ejb.Stateless;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -26,6 +31,9 @@ import utils.Log;
  */
 @Stateless
 @LocalBean
+@ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
+@AccessTimeout(value = 5000)
+@Lock(LockType.READ)
 public class AgentServicesBean implements AgentServicesBeanLocal {
 
 	/**
@@ -68,32 +76,30 @@ public class AgentServicesBean implements AgentServicesBeanLocal {
 	}
 
 	@Override
+	@Lock(LockType.WRITE)
 	public boolean sendMessageToAgent(ACLMessage message) {
 		init();
+		boolean isOkay = true;
 		try {
-			//String str = new Gson().toJson(message);
-
 			TemporaryQueue temp = session.createTemporaryQueue();
 			MessageConsumer tempConsumer = session.createConsumer(temp);
-
-			//TextMessage msg = session.createTextMessage(str);
 			ObjectMessage msg = session.createObjectMessage(message);
 			msg.setJMSReplyTo(temp);
 			producer.send(msg);
 
-			Message ret = tempConsumer.receive(AppConst.JMS_RESPONSE_TIME);
-			if (ret != null) {
-				//Log.out(this, "Return value: " + ret.getBooleanProperty("success"));
-				return ret.getBooleanProperty("success");
+			Message returnMessage = tempConsumer.receive(AppConst.JMS_RESPONSE_TIME);
+			if (returnMessage != null) {
+				isOkay = returnMessage.getBooleanProperty("success");
 			} else {
-				return false;
+				isOkay = false;
 			}
 
 		} catch (JMSException e) {
 			Log.out(this, "JMS Exception" + e.getMessage());
+			isOkay = false;
 		}
 		destroy();
-		return false;
+		return isOkay;
 	}
 
 	@Override
@@ -113,7 +119,7 @@ public class AgentServicesBean implements AgentServicesBeanLocal {
 			MessageProducer replyProducer = session.createProducer(null);
 			replyProducer.send(msg.getJMSReplyTo(), text);
 		} catch (JMSException e) {
-			Log.out(this, "@reply - JMSException");
+			Log.out(this, "@reply " + e.getMessage());
 		}
 		destroy();
 

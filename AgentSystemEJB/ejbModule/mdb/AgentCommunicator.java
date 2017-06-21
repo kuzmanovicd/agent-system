@@ -58,6 +58,14 @@ public class AgentCommunicator implements MessageListener {
 				}
 
 				for (AID reciever : msg.getReceivers()) {
+
+					if (reciever == null) {
+						Log.out(this, "receiver null");
+						Log.out(msg.toString());
+						services.reply(message, false);
+						return;
+					}
+
 					// check if that agent is running
 					if (agentManager.getRunningAgents().containsKey(reciever.getName())) {
 						//Log.out(this, reciever.toString());
