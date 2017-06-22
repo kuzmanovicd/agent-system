@@ -18,7 +18,7 @@ public class PongAgent extends BaseAgent {
 		msgBack.getReceivers().add(msg.getReplyTo());
 
 		if (msg.getPerformative() == Performative.INFORM) {
-			Log.out(this, msg.getContent());
+			Log.out(this, "1 " + msg.getContent());
 
 			if (msg.getReplyTo() != null) {
 				msgBack.setReplyWith(System.currentTimeMillis() + "");

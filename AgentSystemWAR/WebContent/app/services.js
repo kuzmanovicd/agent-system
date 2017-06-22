@@ -23,8 +23,8 @@ function ConnectionService($websocket, $rootScope, $timeout, $location) {
 			console.log(msg.data);
 			services.messages.push(msg.data);
 			break;
-		case 'online-users':
-			$rootScope.users = msg.data;
+		case 'running':
+			$rootScope.runningAgents = msg.data;
 			break;
 		case 'notification':
 			$rootScope.notification = msg.data;
@@ -90,6 +90,8 @@ function RestService($rootScope, $timeout, $location, $http) {
 	var url = '/AgentSystemWAR/api/';
 	services.getRunningAgents = getRunningAgents;
 	services.getSupportedAgents = getSupportedAgents;
+	services.getPerformatives = getPerformatives;
+	services.sendACL = sendACL;
 
 	return services;
 
@@ -108,6 +110,26 @@ function RestService($rootScope, $timeout, $location, $http) {
 		$http.get(url + 'agents/classes/my').then(function(response) {
 			$rootScope.supportedAgents = response.data;
 		});
+	}
+
+	function getPerformatives() {
+		$http.get(url + 'agents/messages').then(function(response) {
+			$rootScope.performatives = response.data;
+		});
+	}
+
+	function sendACL(acl) {
+		var notification = {};
+		$http.post(url + 'agents/message', angular.toJson(acl)).then(function (response) {
+			notification.success = true;
+			notification.message = "Poruka uspesno poslata!";
+			$rootScope.notification = notification;
+			$timeout(removeNotification, 8000);
+		});
+	}
+
+	function removeNotification() {
+		$rootScope.notification = null;
 	}
 
 	

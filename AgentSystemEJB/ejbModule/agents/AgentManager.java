@@ -127,6 +127,7 @@ public class AgentManager implements AgentManagerLocal {
 				myRunningAgents.put(aid.getName(), a);
 				runningAgents.put(aid.getName(), aid);
 				communicator.notifyAllNodesForAgents(runningAgents);
+				//AgentHelper.getWSManager().broadcastRunning(runningAgents.values());
 				return aid;
 
 			} catch (InstantiationException | IllegalAccessException e) {
@@ -151,11 +152,13 @@ public class AgentManager implements AgentManagerLocal {
 		myRunningAgents.remove(agentName);
 		if (ret != null) {
 			communicator.notifyAllNodesForAgents(runningAgents);
+			//AgentHelper.getWSManager().broadcastRunning(runningAgents.values());
 		}
 		return ret;
 	}
 
 	// getters and setters
+	@Override
 	public HashMap<String, AID> getRunningAgents() {
 		return runningAgents;
 	}

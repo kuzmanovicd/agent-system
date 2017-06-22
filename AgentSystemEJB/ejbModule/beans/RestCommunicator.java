@@ -11,6 +11,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
+import agents.AgentHelper;
 import agents.AgentManager;
 import models.ACLMessage;
 import models.AID;
@@ -35,6 +36,7 @@ public class RestCommunicator implements CommunicatorLocal {
 	AppManagerBean appManager;
 	@EJB
 	NodeManagerBean nodeManager;
+
 	private ResteasyClient restClient;
 
 	public RestCommunicator() {
@@ -69,6 +71,7 @@ public class RestCommunicator implements CommunicatorLocal {
 	@Override
 	public void notifyAllNodesForAgents(HashMap<String, AID> allAgents) {
 		Log.out(this, "notifyAllNodesForAgents");
+		AgentHelper.getWSManager().broadcastRunning(allAgents.values());
 		for (AgentCenter node : nodeManager.getAllCenters()) {
 			if (node.equals(appManager.getThisCenter())) {
 				continue;

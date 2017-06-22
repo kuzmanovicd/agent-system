@@ -16,6 +16,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import agents.AgentHelper;
 import agents.AgentManager;
 import mdb.AgentServicesBean;
 import models.ACLMessage;
@@ -24,6 +25,7 @@ import models.AgentType;
 import models.Performative;
 import proxy.AgentProxy;
 import utils.HTTP;
+import websocket.WSManagerLocal;
 
 @Stateless
 //@RequestScoped
@@ -63,9 +65,9 @@ public class AgentApi implements AgentProxy {
 	@POST
 	@Path("/running")
 	public String updateAllRunningAgents(HashMap<String, AID> agents) {
-		//for slaves
-		//Log.out(this, "POST /running/all");
 		agentManager.setRunningAgents(agents);
+		WSManagerLocal ws = AgentHelper.getWSManager();
+		ws.broadcastRunning(agentManager.getRunningAgents().values());
 		return "ok";
 	}
 
@@ -111,8 +113,16 @@ public class AgentApi implements AgentProxy {
 	public ACLMessage getACL() {
 		ACLMessage msg = new ACLMessage();
 		msg.setPerformative(Performative.INFORM);
-		msg.setContent("evo neka poruka jebemtimilu majku 222");
+		msg.setContent("evo neka porukica");
 		return msg;
+	}
+
+	@POST
+	@Path("/broadcast")
+	@Override
+	public void broadcast(String msg) {
+		WSManagerLocal ws = AgentHelper.getWSManager();
+		ws.broadcast(msg);
 	}
 
 }

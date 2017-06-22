@@ -4,6 +4,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import beans.NodeManagerBeanLocal;
 import beans.SessionsManagerBeanLocal;
 import mdb.AgentServicesBeanLocal;
 import utils.AppConst;
@@ -29,6 +30,18 @@ public class AgentHelper {
 			Context cntx = new InitialContext();
 			String name = "java:global/" + AppConst.APP_NAME + "/" + AppConst.EJB_NAME + "/AgentManager!" + AgentManagerLocal.class.getName();
 			AgentManagerLocal a = (AgentManagerLocal) cntx.lookup(name);
+			return a;
+		} catch (NamingException e) {
+			Log.out("AgentHelper - catchhh " + e.getMessage());
+			return null;
+		}
+	}
+
+	public static NodeManagerBeanLocal getNodeManager() {
+		try {
+			Context cntx = new InitialContext();
+			String name = "java:global/" + AppConst.APP_NAME + "/" + AppConst.EJB_NAME + "/NodeManagerBean!" + NodeManagerBeanLocal.class.getName();
+			NodeManagerBeanLocal a = (NodeManagerBeanLocal) cntx.lookup(name);
 			return a;
 		} catch (NamingException e) {
 			Log.out("AgentHelper - catchhh " + e.getMessage());

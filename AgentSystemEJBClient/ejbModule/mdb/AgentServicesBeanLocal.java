@@ -12,4 +12,6 @@ public interface AgentServicesBeanLocal {
 
 	void reply(Message msg, Boolean success);
 
+	boolean sendMessageToAgentNoResponse(ACLMessage message);
+
 }

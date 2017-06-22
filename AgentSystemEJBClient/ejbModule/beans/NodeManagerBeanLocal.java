@@ -17,4 +17,6 @@ public interface NodeManagerBeanLocal {
 
 	AgentCenter getAgentCenter(String alias);
 
+	void broadcast(String msg);
+
 }

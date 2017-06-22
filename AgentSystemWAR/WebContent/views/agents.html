@@ -1,3 +1,17 @@
+<div ng-if="1 == 2">
+# {{info}}
+<hr>
+##
+<br>{{runningAgents}}
+<hr>
+</div>
+
+<div class="row">
+	<div class="col-xs-12">
+		<button type="button" class="btn btn-default btn-md" data-toggle="modal" data-target="#createAgent">Run Agent</button>
+		<button type="button" class="btn btn-default btn-md" data-toggle="modal" data-target="#sendACL">Send Message</button>
+	</div>
+</div>
 <div class="row">
 	<div class="col-xs-4">
 		<div class="list-group">
@@ -16,11 +30,69 @@
 		</div>
 	</div>
 	<div class="col-xs-12 chat-box">
+
 		<h4>Console</h4>
 		<div id="console" ng-repeat="message in messages track by $index">
 			<strong>- {{message}}</strong>
 		</div>
 	</div>
 </div>
+
+<div class="modal fade" id="createAgent" role="dialog">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Create New Agent</h4>
+			</div>
+			<div class="modal-body">
+				<input type="text" placeholder="Agent Name" minlength="3" ng-model="newAgent.name" required>
+				<select class="form-control" ng-model="newAgent.type" required>
+                <option ng-selected="selected" disabled value="">Choose agent type...</option>
+                <option ng-repeat="agent in supportedAgents" value="{{agent.name}}">{{agent.name}}</option>
+            </select>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="createAgent()">Create</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="sendACL" role="dialog">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Send ACL Message</h4>
+			</div>
+			<div class="modal-body">				
+				<select class="form-control" ng-model="acl.performative" required>
+                <option ng-selected="selected" disabled value="">Choose performative...</option>
+                <option ng-repeat="p in performatives" value="{{p}}">{{p}}</option>
+            </select>
+				<select class="form-control" ng-model="acl.sender" required>
+                <option ng-selected="selected" disabled value="">Sender...</option>
+                <option ng-repeat="agent in runningAgents" ng-value="{{agent}}">{{agent.name}} - {{agent.type.name}} - {{agent.host.alias}}</option>
+            </select>
+				<select class="form-control" ng-model="acl.receivers" required>
+                <option ng-selected="selected" disabled value="">Receiver...</option>
+                <option ng-repeat="agent in runningAgents" ng-value="{{agent}}">{{agent.name}} - {{agent.type.name}} - {{agent.host.alias}}</option>
+            </select>
+				<select class="form-control" ng-model="acl.replyTo" required>
+                <option ng-selected="selected" disabled value="">Reply To...</option>
+                <option ng-repeat="agent in runningAgents" ng-value="{{agent}}">{{agent.name}} - {{agent.type.name}} - {{agent.host.alias}}</option>
+            </select>
+				<input type="text" placeholder="Content" minlength="3" ng-model="acl.content" required>
+
+			</div>
+		
+		<div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			<button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="sendACL()">Send</button>
+		</div>
+	</div>
 </div>
 </div>

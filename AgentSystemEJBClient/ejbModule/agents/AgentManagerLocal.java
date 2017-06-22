@@ -21,4 +21,6 @@ public interface AgentManagerLocal {
 
 	AID startAgent(String agentType, String agentName);
 
+	HashMap<String, AID> getRunningAgents();
+
 }

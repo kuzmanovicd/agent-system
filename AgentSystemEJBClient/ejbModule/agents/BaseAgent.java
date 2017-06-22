@@ -1,5 +1,6 @@
 package agents;
 
+import beans.NodeManagerBeanLocal;
 import models.ACLMessage;
 import models.AID;
 import models.Agent;
@@ -29,8 +30,11 @@ public abstract class BaseAgent implements Agent {
 
 	protected void log(ACLMessage msg) {
 		WSManagerLocal ws = AgentHelper.getWSManager();
+		NodeManagerBeanLocal node = AgentHelper.getNodeManager();
 		if (ws != null) {
-			ws.broadcast(this.getAID().getName() + ": " + msg.getContent() + " from " + msg.getSender().getName());
+			String str = this.getAID().getName() + ": " + msg.getContent() + " from " + msg.getSender().getName();
+			ws.broadcast(str);
+			node.broadcast(str);
 		}
 	}
 }

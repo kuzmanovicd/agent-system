@@ -1,6 +1,7 @@
 package websocket;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.LocalBean;
@@ -14,9 +15,16 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import agents.AgentManagerLocal;
 import beans.SessionsManagerBeanLocal;
+import models.ACLMessage;
+import models.AID;
 import utils.Log;
 
 @ServerEndpoint("/websocket")
@@ -28,6 +36,9 @@ public class WSManager implements WSManagerLocal {
 
 	@Inject
 	private SessionsManagerBeanLocal sessionsManager;
+
+	@Inject
+	private AgentManagerLocal agentManager;
 
 	@PostConstruct
 	private void init() {
@@ -61,7 +72,31 @@ public class WSManager implements WSManagerLocal {
 			return;
 		}
 
-		//do some shit here
+		JSONObject data = null;
+
+		try {
+			JSONObject message = new JSONObject(msg);
+			String type;
+
+			type = message.getString("type");
+			data = message.getJSONObject("data");
+
+			if (type.equals("create")) {
+				agentManager.startAgent(data.getString("type"), data.getString("name"));
+				//broadcastRunning(agentManager.getRunningAgents().values());
+			} else if (type.equals("acl")) {
+				Gson gson = new GsonBuilder().create();
+				ACLMessage acl = gson.fromJson(data.toString(), ACLMessage.class);
+				Log.out(this, acl.toString());
+			} else {
+				Log.out(this, "Uknown message type");
+				Log.out(msg);
+			}
+		} catch (Exception e) {
+			Log.out(this, "exception - " + e.getMessage());
+			Log.out(data.toString());
+		}
+
 	}
 
 	@OnClose
@@ -101,51 +136,23 @@ public class WSManager implements WSManagerLocal {
 		}
 	}
 
-	/*
 	@Override
-	public void broadcastOnline(ArrayList<User> users) {
-		Gson gson = new GsonBuilder().create();
-		String str = gson.toJson(users);
-		Log.out(this, "@broadcastOnline");
-		
-		JSONArray usersJson = new JSONArray(str);
-		
+	public void broadcastRunning(Collection<AID> collection) {
+		JSONArray runningJson = new JSONArray(collection);
+
 		JSONObject json = new JSONObject();
-		json.put("type", "online-users");
-		json.put("data", usersJson);
-		
-		for(Session s : sessionsManager.getSessions()) {
-			if(true) {
-				try {
-					Log.out(this, "@broadcastOnline - saljem");
-					s.getBasicRemote().sendText(json.toString());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		json.put("type", "running");
+		json.put("data", runningJson);
+
+		for (Session s : sessionsManager.getSessions()) {
+			try {
+				Log.out(this, "@broadcastRunning - saljem");
+				s.getBasicRemote().sendText(json.toString().replaceAll("class a", "a"));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
-	
-	
-	
-	public void sendOnlineUsers(Session session) {
-		Gson gson = new GsonBuilder().create();
-		
-		String str = gson.toJson(userAppDelegate.getOnlineUsers());
-		Log.out(this, str);
-		JSONArray usersJson = new JSONArray(str);
-		
-		JSONObject json = new JSONObject();
-		json.put("type", "online-users");
-		json.put("data", usersJson);
-		
-		try {
-			session.getBasicRemote().sendText(json.toString());
-		} catch (IOException e) {
-			Log.out(this, "sendOnlineUsers Exception");
-		}
-	}
-	*/
 
 }

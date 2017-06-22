@@ -103,7 +103,34 @@ public class AgentServicesBean implements AgentServicesBeanLocal {
 	}
 
 	@Override
+	@Lock(LockType.WRITE)
+	public boolean sendMessageToAgentNoResponse(ACLMessage message) {
+		init();
+		boolean isOkay = true;
+		try {
+
+			ObjectMessage msg = session.createObjectMessage(message);
+			producer.send(msg);
+
+		} catch (JMSException e) {
+			Log.out(this, "JMS Exception" + e.getMessage());
+			isOkay = false;
+		}
+		destroy();
+		return isOkay;
+	}
+
+	@Override
 	public void reply(Message msg, Boolean success) {
+
+		try {
+			if (msg.getJMSReplyTo() == null) {
+				return;
+			}
+		} catch (JMSException e1) {
+			return;
+		}
+
 		init();
 		TextMessage text;
 		try {

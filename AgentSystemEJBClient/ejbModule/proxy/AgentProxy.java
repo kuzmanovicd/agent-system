@@ -62,4 +62,8 @@ public interface AgentProxy {
 	@GET
 	@Path("/messages/acl")
 	ACLMessage getACL();
+
+	@POST
+	@Path("/broadcast")
+	void broadcast(String msg);
 }

@@ -6,35 +6,19 @@ app.controller('MainCtrl', function	($scope, $rootScope, ConnectionService, Rest
 
 	RestService.getRunningAgents();
 	RestService.getSupportedAgents();
+	RestService.getPerformatives();
 
-	$scope.sendMessage = function() {
+	$scope.sendACL = function() {
+		$scope.acl.receivers = [$scope.acl.receivers];
+		$rootScope.info = $scope.acl;
 		var msg = {
-				data: {
-					content: $scope.newMessage,
-					from: $rootScope.loggedUser,
-					//to: null,
-					subject: ""
-					
-				},
-				type: "message"
-				
+				data: $scope.acl,
+				type: "acl"		
 		};
-
-		if($scope.selectedUser != null) {
-			msg.data.to = $scope.selectedUser;
-		}
 		
-		ConnectionService.stream.send(angular.toJson(msg));
-		$scope.newMessage = "";
+		RestService.sendACL($scope.acl);
+		//ConnectionService.stream.send(angular.toJson(msg));
 	}
-
-	$scope.selectUser = function(u) {
-		$scope.selectedUser = u;
-	}
-
-	$scope.resetUser = function() {
-		$scope.selectedUser = null;
-	} 
 
 	$scope.isSelected = function(username) {
 		console.log('isSelected');
@@ -49,40 +33,13 @@ app.controller('MainCtrl', function	($scope, $rootScope, ConnectionService, Rest
 		return false;
 	}
 	
-	$scope.register = function() {
+	$scope.createAgent = function() {
 		var user = {
-				type: "register",
-				data: $scope.user
-		}
-		
-		console.log
-		ConnectionService.stream.send(angular.toJson(user));
-		$scope.user = {};
-		$scope.password2 = "";
-	}
-	
-	$scope.login = function() {
-		var user = {
-				type: "login",
-				data: $scope.user
+				type: "create",
+				data: $scope.newAgent
 		}
 		
 		console.log(user);
-
 		ConnectionService.stream.send(angular.toJson(user));
-		$scope.user = {};
-	}
-	
-	$scope.logout = function() {
-
-		var user = {
-				type: "logout",
-				data: $rootScope.loggedUser
-		}
-		console.log('Pozvan logout');
-		console.log(user);
-
-		ConnectionService.stream.send(angular.toJson(user));
-		$scope.user = {};
 	}
 });
