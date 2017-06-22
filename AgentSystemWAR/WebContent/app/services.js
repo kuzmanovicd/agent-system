@@ -92,6 +92,7 @@ function RestService($rootScope, $timeout, $location, $http) {
 	services.getSupportedAgents = getSupportedAgents;
 	services.getPerformatives = getPerformatives;
 	services.sendACL = sendACL;
+	services.stopAgent = stopAgent;
 
 	return services;
 
@@ -123,6 +124,16 @@ function RestService($rootScope, $timeout, $location, $http) {
 		$http.post(url + 'agents/message', angular.toJson(acl)).then(function (response) {
 			notification.success = true;
 			notification.message = "Poruka uspesno poslata!";
+			$rootScope.notification = notification;
+			$timeout(removeNotification, 8000);
+		});
+	}
+
+	function stopAgent(agent) {
+		var notification = {};
+		$http.delete(url + 'agents/running/' + agent.name).then(function(response) {
+			notification.message = "Agent uspesno zaustavljen!";
+			notification.success = true;
 			$rootScope.notification = notification;
 			$timeout(removeNotification, 8000);
 		});

@@ -18,7 +18,7 @@ app.controller('MainCtrl', function	($scope, $rootScope, ConnectionService, Rest
 		
 		RestService.sendACL($scope.acl);
 		//ConnectionService.stream.send(angular.toJson(msg));
-	}
+	};
 
 	$scope.isSelected = function(username) {
 		console.log('isSelected');
@@ -31,7 +31,7 @@ app.controller('MainCtrl', function	($scope, $rootScope, ConnectionService, Rest
 		console.log('drugi user');
 		console.log($scope.selectedUser);
 		return false;
-	}
+	};
 	
 	$scope.createAgent = function() {
 		var user = {
@@ -41,5 +41,26 @@ app.controller('MainCtrl', function	($scope, $rootScope, ConnectionService, Rest
 		
 		console.log(user);
 		ConnectionService.stream.send(angular.toJson(user));
+
+		notification.success = true;
+		notification.message = "Agent Uspesno kreiran!";
+		$rootScope.notification = notification;
+		$timeout(removeNotification, 8000);
+
+	};
+
+	$scope.select = function(agent) {
+		$rootScope.stopAgent = agent;
 	}
+
+	$scope.clearSelection = function(agent) {
+		$rootScope.stopAgent = undefined;
+	}
+
+
+	$scope.stop = function() {
+		console.log('briseeeem');
+		RestService.stopAgent($rootScope.stopAgent);
+	}
+
 });
