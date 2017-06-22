@@ -27,5 +27,8 @@
         <dependent-module archiveName="javassist-3.12.1.GA.jar" deploy-path="/lib" handle="module:/classpath/lib/C:/Users/deyan/workspace-jee/at/AgentSystemWAR/WebContent/WEB-INF/lib/javassist-3.12.1.GA.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="jeromq-0.4.0.jar" deploy-path="/lib" handle="module:/classpath/lib/C:/Users/deyan/workspace-jee/at/AgentSystemWAR/WebContent/WEB-INF/lib/jeromq-0.4.0.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
     </wb-module>
 </project-modules>

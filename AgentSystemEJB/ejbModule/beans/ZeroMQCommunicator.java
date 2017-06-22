@@ -1,5 +1,6 @@
 package beans;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -10,6 +11,9 @@ import javax.ejb.Stateless;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.zeromq.ZMQ;
+
+import com.google.gson.reflect.TypeToken;
 
 import agents.AgentHelper;
 import agents.AgentManager;
@@ -21,14 +25,16 @@ import proxy.AgentProxy;
 import proxy.NodeManagerProxy;
 import utils.AppConst;
 import utils.HTTP;
+import utils.JSON;
 import utils.Log;
+import utils.MsgType;
 
 /**
  * Session Bean implementation class RestCommunicator
  */
-@Stateless(name = "rest")
+@Stateless(name = "zeromq")
 @LocalBean
-public class RestCommunicator implements CommunicatorLocal {
+public class ZeroMQCommunicator implements CommunicatorLocal {
 
 	@EJB
 	AgentManager agentManager;
@@ -39,7 +45,7 @@ public class RestCommunicator implements CommunicatorLocal {
 
 	private ResteasyClient restClient;
 
-	public RestCommunicator() {
+	public ZeroMQCommunicator() {
 		restClient = new ResteasyClientBuilder().connectionPoolSize(50).build();
 	}
 
@@ -93,15 +99,50 @@ public class RestCommunicator implements CommunicatorLocal {
 
 	@Override
 	public ArrayList<AgentCenter> nodeRegister() {
+		try {
+			ZMQ.Context context = ZMQ.context(1);
+			ZMQ.Socket requester = context.socket(ZMQ.REQ);
+			String url = "tcp://localhost:" + appManager.getMasterCenter().getPort();
+			requester.connect(url);
+
+			String json = JSON.stringify(appManager.getThisCenter(), MsgType.REGISTER_NODE);
+			requester.send(json);
+			String rec = requester.recvStr(0);
+			Log.out(this, "0MQComm received " + rec);
+
+			Type listType = new TypeToken<ArrayList<AgentCenter>>() {
+			}.getType();
+			ArrayList<AgentCenter> nodes = (ArrayList<AgentCenter>) JSON.parse(rec, listType);
+			return nodes;
+
+		} catch (Exception e) {
+			Log.out(this, "nodeRegister exception " + e.getMessage());
+		}
+
+		Log.out(this, "Registrujem preko resta ipak...");
 		String url = HTTP.gen(appManager.getMasterCenter().getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "cluster";
 		ResteasyWebTarget rtarget = restClient.target(url);
 		NodeManagerProxy rest = (NodeManagerProxy) rtarget.proxy(NodeManagerProxy.class);
-
 		return rest.nodeRegister(appManager.getThisCenter());
 	}
 
 	@Override
 	public void nodeDelete() {
+		try {
+			ZMQ.Context context = ZMQ.context(1);
+			ZMQ.Socket requester = context.socket(ZMQ.REQ);
+			String url = "tcp://localhost:" + appManager.getMasterCenter().getPort();
+			requester.connect(url);
+
+			String json = JSON.stringify(appManager.getThisCenter(), MsgType.DELETE_NODE);
+			requester.send(json);
+			String rec = requester.recvStr(0);
+			Log.out(this, "0MQComm received " + rec);
+
+		} catch (Exception e) {
+			Log.out(this, "nodeRegister exception " + e.getMessage());
+		}
+
 		String url = HTTP.gen(appManager.getMasterCenter().getAddress(), AppConst.WAR_NAME, AppConst.REST_ROOT) + "cluster";
 		ResteasyWebTarget rtarget = restClient.target(url);
 		NodeManagerProxy rest = (NodeManagerProxy) rtarget.proxy(NodeManagerProxy.class);

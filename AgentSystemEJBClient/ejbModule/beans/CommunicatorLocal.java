@@ -13,8 +13,6 @@ import models.AgentType;
 @Local
 public interface CommunicatorLocal {
 
-	void removeNode(AgentCenter node);
-
 	void notifyNodes();
 
 	ArrayList<AgentCenter> nodeRegister();

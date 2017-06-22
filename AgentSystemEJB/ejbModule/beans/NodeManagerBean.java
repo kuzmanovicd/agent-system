@@ -15,6 +15,16 @@ import javax.ejb.LockType;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
@@ -79,6 +89,8 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 			return;
 		}
 
+		//startZeroMQ();
+
 		thisCenter = appManager.getThisCenter();
 		masterCenter = appManager.getMasterCenter();
 
@@ -138,14 +150,6 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 		ArrayList<AgentCenter> newCenter = (ArrayList<AgentCenter>) getAllCenters().clone();
 		newCenter.add(node);
 		return newCenter;
-	}
-
-	@Lock(LockType.WRITE)
-	@Deprecated
-	private void rollbackHandshake() {
-		Log.out(this, "rollbackHandshake");
-		communicator.removeNode(newNode);
-		clearHandshake();
 	}
 
 	@Lock(LockType.WRITE)
@@ -282,6 +286,38 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 				}
 
 			}
+		}
+	}
+
+	public void startZeroMQ() {
+		if (AppConst.COMMUNICATOR_NAME.equals("rest")) {
+			return;
+		}
+
+		Log.out(this, "Initialiazing ZeroMQ Server");
+		Connection connection;
+		MessageProducer producer;
+		Queue queue;
+		Session session;
+		try {
+			Context context = new InitialContext();
+			ConnectionFactory cf = (ConnectionFactory) context.lookup("jboss/exported/jms/RemoteConnectionFactory");
+			queue = (Queue) context.lookup("jms/queue/ZeroMQQueue");
+			context.close();
+			connection = cf.createConnection("guest", "tiptop123");
+			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			connection.start();
+			producer = session.createProducer(queue);
+
+			TextMessage msg = session.createTextMessage("init");
+			producer.send(msg);
+
+			producer.close();
+			session.close();
+			connection.close();
+			Log.out(this, "ZeroMQ Server on " + appManager.getThisCenter().getAlias() + " is ready...");
+		} catch (NamingException | JMSException e) {
+			Log.out(this, "@PostConstruct exception");
 		}
 	}
 }
