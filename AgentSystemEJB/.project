@@ -35,11 +35,6 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
-		<buildCommand>
-			<name>org.jboss.tools.cdi.core.cdibuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.ajdt.ui.ajnature</nature>
@@ -50,6 +45,5 @@
 		<nature>org.jboss.tools.jst.web.kb.kbnature</nature>
 		<nature>org.zeroturnaround.eclipse.jrebelNature</nature>
 		<nature>org.jboss.tools.ws.jaxrs.nature</nature>
-		<nature>org.jboss.tools.cdi.core.cdinature</nature>
 	</natures>
 </projectDescription>
