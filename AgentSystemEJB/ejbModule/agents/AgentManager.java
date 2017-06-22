@@ -58,7 +58,7 @@ public class AgentManager implements AgentManagerLocal {
 
 	@PostConstruct
 	private void init() {
-		Log.out(this, "@PostConstruct");
+		//Log.out(this, "@PostConstruct");
 		agentTypes = new HashMap<>();
 		myAgentTypes = new ArrayList<AgentType>();
 		runningAgents = new HashMap<>();

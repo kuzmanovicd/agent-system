@@ -2,6 +2,8 @@
 
 app.factory('ConnectionService', ConnectionService);
 
+app.factory('RestService', RestService);
+
 function ConnectionService($websocket, $rootScope, $timeout, $location) {
 	
 	var link = document.createElement('a');
@@ -13,12 +15,13 @@ function ConnectionService($websocket, $rootScope, $timeout, $location) {
 	
 	services.stream.onMessage(function(message) {
 		var msg = JSON.parse(message.data);
-		console.log(msg);
+		//console.log(msg);
 
 		
 		switch(msg.type) {
 		case 'message':
-			services.messages.push(msg);
+			console.log(msg.data);
+			services.messages.push(msg.data);
 			break;
 		case 'online-users':
 			$rootScope.users = msg.data;
@@ -80,4 +83,32 @@ function ConnectionService($websocket, $rootScope, $timeout, $location) {
 	}
 	
 	return services;
+}
+
+function RestService($rootScope, $timeout, $location, $http) {
+	var services = {};
+	var url = '/AgentSystemWAR/api/';
+	services.getRunningAgents = getRunningAgents;
+	services.getSupportedAgents = getSupportedAgents;
+
+	return services;
+
+	function getRunningAgents() {
+		$http.get(url + 'agents/running').then(function(response) {
+			var agents = [];
+			for (var key in response.data){
+				console.log(response.data[key]);
+				agents.push(response.data[key]);
+			}
+			$rootScope.runningAgents = agents;
+		});
+	}
+
+	function getSupportedAgents() {
+		$http.get(url + 'agents/classes/my').then(function(response) {
+			$rootScope.supportedAgents = response.data;
+		});
+	}
+
+	
 }

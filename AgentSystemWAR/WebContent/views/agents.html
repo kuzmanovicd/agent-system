@@ -1,0 +1,26 @@
+<div class="row">
+	<div class="col-xs-4">
+		<div class="list-group">
+			<a href="" class="list-group-item active">Running Agents <span class="label label-danger" ng-if="selectedUser">Reset</span></a>
+			<a ng-repeat="agent in runningAgents" href="" class="list-group-item">
+								{{agent.name}} - {{agent.type.name}} - {{agent.host.alias}}
+			</a>
+		</div>
+	</div>
+	<div class="col-xs-4">
+		<div class="list-group">
+			<a href="" class="list-group-item active">Supported Agents <span class="label label-danger" ng-if="selectedUser">Reset</span></a>
+			<a ng-repeat="agent in supportedAgents" href="" class="list-group-item">
+								{{agent.name}}
+			</a>
+		</div>
+	</div>
+	<div class="col-xs-12 chat-box">
+		<h4>Console</h4>
+		<div id="console" ng-repeat="message in messages track by $index">
+			<strong>- {{message}}</strong>
+		</div>
+	</div>
+</div>
+</div>
+</div>

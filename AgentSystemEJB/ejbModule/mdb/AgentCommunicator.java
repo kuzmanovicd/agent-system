@@ -12,6 +12,7 @@ import agents.AgentManager;
 import agents.BaseAgent;
 import beans.AppManagerBean;
 import beans.CommunicatorLocal;
+import beans.NodeManagerBean;
 import models.ACLMessage;
 import models.AID;
 import utils.AppConst;
@@ -35,6 +36,9 @@ public class AgentCommunicator implements MessageListener {
 
 	@EJB
 	AppManagerBean appManager;
+
+	@EJB
+	NodeManagerBean nodeManager;
 
 	public AgentCommunicator() {
 		// TODO Auto-generated constructor stub
@@ -78,10 +82,12 @@ public class AgentCommunicator implements MessageListener {
 							} else {
 								Log.out(this, "USAO GDE NIJE TREBAO AGENT JE NULL");
 							}
-						} else {
+						} else if (nodeManager.getAgentCenter(reciever.getHost().getAlias()) != null) {
 							//agent is on other node, notify that node with message
 							//Log.out(this, "Different host - sending mesage to other node");
 							communicator.sendMessageToNode(msg, reciever.getHost());
+						} else {
+							services.reply(message, false);
 						}
 
 					} else {

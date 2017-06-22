@@ -80,11 +80,11 @@ public class NodeManagerBean implements NodeManagerBeanLocal {
 		masterCenter = appManager.getMasterCenter();
 
 		if (appManager.isMaster()) {
-			Log.out(this, "@PostConstruct master");
+			//Log.out(this, "@PostConstruct master");
 			addCenter(appManager.getThisCenter());
 			isMaster = true;
 		} else {
-			Log.out(this, "@PostConstruct slave");
+			//Log.out(this, "@PostConstruct slave");
 			try {
 				ArrayList<AgentCenter> nodes = communicator.nodeRegister();
 				setAllCenters(nodes);

@@ -1,8 +1,11 @@
 'use strict';
 
-app.controller('MainCtrl', function	($scope, $rootScope, ConnectionService) {
+app.controller('MainCtrl', function	($scope, $rootScope, ConnectionService, RestService) {
 	$scope.messages = ConnectionService.messages;
 	$scope.notification = ConnectionService.notification;
+
+	RestService.getRunningAgents();
+	RestService.getSupportedAgents();
 
 	$scope.sendMessage = function() {
 		var msg = {

@@ -1,98 +1,86 @@
 <html ng-app="mainApp">
-	<head>
-	    <meta charset="UTF-8">
-	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-	    <meta name="viewport" content="width=device-width, initial-scale=1">
-	    
-	    <!--  Fonts -->
-	    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
-    	<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" />
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
-		
-	    <script
-		 src="https://code.jquery.com/jquery-3.2.1.min.js"
-		 integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-		 crossorigin="anonymous"></script>
-	    <!-- Latest compiled and minified CSS -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-		
-		<!-- Optional theme -->
-		<!--  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous"> -->
-		<link rel="stylesheet" href="css/chat.css">
-		
-		<!-- Latest compiled and minified JavaScript -->
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>	
-	    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.min.js"></script>
-		<script src="https://cdn.rawgit.com/AngularClass/angular-websocket/v2.0.0/dist/angular-websocket.min.js"></script>
-		<script src="app/main.js"></script>
-		<script src="app/services.js"></script>
-		<script src="app/controllers.js"></script>
-	    
-	    <title>Chat App</title>
-	</head>
-	<body>
-		 <nav class="navbar navbar-inverse navbar-fixed-top ke-nav-container">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!--  Fonts -->
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+	<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+	    crossorigin="anonymous"></script>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+	    crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<!--  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous"> -->
+	<link rel="stylesheet" href="css/chat.css">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+	    crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.min.js"></script>
+	<script src="https://cdn.rawgit.com/AngularClass/angular-websocket/v2.0.0/dist/angular-websocket.min.js"></script>
+	<script src="app/main.js"></script>
+	<script src="app/services.js"></script>
+	<script src="app/controllers.js"></script>
+
+	<title>Multi-agent System</title>
+</head>
+
+<body>
+	<nav class="navbar navbar-inverse navbar-fixed-top ke-nav-container">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false"
+				    aria-controls="navbar">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#!">ChatApp</a>
-            </div>
-            <div ng-controller="MainCtrl" id="navbar" class="collapse navbar-collapse">
-                <ul class="nav navbar-nav">
-                    <li ng-if="loggedUser" ><a href="#!/chat">Chat</a></li>
-                </ul>
+				<a class="navbar-brand" href="#!">AgentSystem</a>
+			</div>
+			<div ng-controller="MainCtrl" id="navbar" class="collapse navbar-collapse">
+				<ul class="nav navbar-nav">
+					<li><a href="#!/agents">Agents</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<div class="container">
+		<duv class="col-md-12">
 
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#!/login">Login</a></li>
-                    <li><a href="#!/register">Register</a></li>
-                    <li ng-if="loggedUser">
-                        <form class="navbar-form">
-                            <span>&nbsp;&nbsp;</span>
-                            <button type="button" class="btn btn-danger btn-sm" ng-click="logout()">
-                                <span class="glyphicon glyphicon-off"></span> {{loggedUser.username}}
-                            </button>
-                        </form>
-                    </li>
-                </ul>
+			<div ng-if="connection.data" class="list-group-item" ng-controller="MainCtrl">
+				<h4 class="list-group-item-heading">
+					Websocket
+				</h4>
+				<p class="list-group-item-text">
+					<span ng-if="connection.data && !connection.data.success" class="label label-danger">Not Operational</span>
+					<span ng-if="connection.data.success" class="label label-success">Operational</span>
+				</p>
 
-            </div>
-        </div>
-    </nav>
-	    <div class="container">
-	    	<duv class="col-md-12">
+			</div>
 
-					<div ng-if="connection.data" class="list-group-item" ng-controller="MainCtrl">
-                              <h4 class="list-group-item-heading">
-                                  Websocket
-                              </h4>
-                              <p class="list-group-item-text">
-                                  <span ng-if="connection.data && !connection.data.success" class="label label-danger">Not Operational</span>
-                                  <span ng-if="connection.data.success" class="label label-success">Operational</span>
-                              </p>
-                                  
-                    </div>
+			<div ng-if="notification.success" class="alert alert-success">
+				<strong>{{notification.message}}</strong>
+			</div>
+			<div ng-if="notification && !notification.success" class="alert alert-danger">
+				<strong>{{notification.message}}</strong>
+			</div>
 
-	    		<div ng-if="notification.success" class="alert alert-success">
-				  	<strong>{{notification.message}}</strong>
-				</div>
-				<div ng-if="notification && !notification.success" class="alert alert-danger">
-				  	<strong>{{notification.message}}</strong>
-				</div>
+	</div>
+	<div class="container padding">
+		<div class="col-md-12" ng-class="padding" ng-view autoscroll="true"></div>
+	</div>
 
-	    	</div>
-	    	<div class="container padding">
-	    		<div class="col-md-12" ng-class="padding" ng-view autoscroll="true"></div>
-	    	</div>
-			
-	    </div>
-		
-	</body>
-	
+	</div>
+
+</body>
+
 </html>
-

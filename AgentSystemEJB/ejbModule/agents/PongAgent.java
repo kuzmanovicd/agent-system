@@ -11,6 +11,8 @@ public class PongAgent extends BaseAgent {
 	public void handleMessage(ACLMessage msg) {
 		AgentServicesBeanLocal services = AgentHelper.getAgentServices();
 
+		log(msg);
+
 		ACLMessage msgBack = new ACLMessage();
 		msgBack.setSender(getAID());
 		msgBack.getReceivers().add(msg.getReplyTo());

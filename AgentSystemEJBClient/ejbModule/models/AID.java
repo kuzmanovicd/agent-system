@@ -58,7 +58,7 @@ public class AID implements Serializable {
 
 	@Override
 	public String toString() {
-		return "AID [node=" + node + ", name=" + name + ", type=" + type + "]";
+		return name + " - " + type.getName() + " - " + node.getAlias();
 	}
 
 }

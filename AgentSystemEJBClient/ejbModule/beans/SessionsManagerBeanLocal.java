@@ -12,4 +12,6 @@ public interface SessionsManagerBeanLocal {
 
 	void setSessions(List<Session> sessions);
 
+	void broadcast(String msg);
+
 }

@@ -6,6 +6,7 @@ import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.Path;
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.aspectj.lang.reflect.MethodSignature;
 
@@ -25,6 +26,8 @@ public aspect Aspect {
 	 pointcut restCalls(): @annotation (Path);
 	 
 	 pointcut postConstruct(): @annotation (PostConstruct);
+	 
+	 pointcut preDestroy(): @annotation (PreDestroy);
 	 
 	 
 	 before():restCalls() {
@@ -54,8 +57,11 @@ public aspect Aspect {
 	 }
 	 
 	 after():postConstruct() {
-		 Log.out("##### PostConstruct - " + thisJoinPoint.getSignature().toString());
-		 
+		 Log.out("@PostConstruct - " + thisJoinPoint.getSignature().toString());
+	 }
+	 
+	 after():preDestroy() {
+		 Log.out("@PreDestroy - " + thisJoinPoint.getSignature().toString());
 	 }
 	 
 	 
