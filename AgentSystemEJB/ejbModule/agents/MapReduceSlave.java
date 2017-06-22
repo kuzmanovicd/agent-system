@@ -9,7 +9,6 @@ import java.util.Scanner;
 import mdb.AgentServicesBeanLocal;
 import models.ACLMessage;
 import models.Performative;
-import utils.Log;
 
 public class MapReduceSlave extends BaseAgent {
 
@@ -36,8 +35,6 @@ public class MapReduceSlave extends BaseAgent {
 
 	private int countWords(String path) {
 
-		boolean diag = true;
-
 		File file = new File(path);
 		try (Scanner sc = new Scanner(new FileInputStream(file))) {
 			int count = 0;
@@ -45,10 +42,6 @@ public class MapReduceSlave extends BaseAgent {
 				sc.next();
 				count++;
 			}
-
-			if (diag == true)
-				Log.out(">>> AgentMapReduceSlave: Broj reci u fajlu: " + path + " je: " + count);
-
 			return count;
 
 		} catch (FileNotFoundException e) {
